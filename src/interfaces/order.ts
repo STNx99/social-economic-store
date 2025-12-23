@@ -1,0 +1,76 @@
+export type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'shipping' | 'delivered' | 'cancelled' | 'returned'
+
+export type PaymentMethod = 'cod' | 'bank_transfer' | 'e_wallet'
+
+export type PaymentStatus = 'pending' | 'paid' | 'failed'
+
+export type ShipmentStatus = 'pending' | 'picked_up' | 'in_transit' | 'out_for_delivery' | 'delivered' | 'failed'
+
+export interface OrderItem {
+  id: string
+  orderId: string
+  variantId: string
+  productId: string
+  productName: string
+  variantName: string
+  quantity: number
+  price: number
+  imageUrl: string
+}
+
+export interface ShippingAddress {
+  fullName: string
+  phone: string
+  address: string
+  ward: string
+  district: string
+  province: string
+}
+
+export interface Order {
+  id: string
+  orderNumber: string
+  userId: string
+  status: OrderStatus
+  items: OrderItem[]
+  subtotal: number
+  shippingFee: number
+  discount: number
+  total: number
+  shippingAddress: ShippingAddress
+  paymentMethod: PaymentMethod
+  paymentStatus: PaymentStatus
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CreateOrderRequest {
+  shippingAddress: ShippingAddress
+  paymentMethod: PaymentMethod
+  note?: string
+}
+
+export interface CancelOrderRequest {
+  reason: string
+}
+
+export interface ReturnOrderRequest {
+  reason: string
+  items: Array<{
+    orderItemId: string
+    quantity: number
+  }>
+}
+
+export interface OrderTimeline {
+  status: OrderStatus
+  timestamp: string
+  location?: string
+  note?: string
+}
+
+export interface Shipment {
+  trackingNumber: string
+  carrier: string
+  status: ShipmentStatus
+}
