@@ -11,3 +11,5 @@ count.txt
 .output
 .vinxi
 todos.json
+packackage-lock.json
+bun.lock
