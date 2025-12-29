@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { Heart, ShoppingCart } from 'lucide-react'
 import { Button } from './ui/button'
@@ -7,6 +8,7 @@ import {
 } from './ui/command'
 
 export default function Header() {
+  const [activeNav, setActiveNav] = useState('Home')
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm">
       <div className="container mx-auto px-4">
@@ -20,24 +22,45 @@ export default function Header() {
           <nav className="hidden md:flex items-center space-x-8">
             <Link
               to="/"
-              className="text-gray-700 hover:text-gray-900 transition-colors"
-              activeProps={{
-                className: 'text-gray-900 underline underline-offset-4',
-              }}
+              onClick={() => setActiveNav('Home')}
+              className={`text-gray-700 hover:text-gray-900 transition-colors pb-1 relative ${
+                activeNav === 'Home' ? 'text-gray-900' : ''
+              }`}
             >
               Home
+              {activeNav === 'Home' && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900"></span>
+              )}
             </Link>
             <a
               href="#contact"
-              className="text-gray-700 hover:text-gray-900 transition-colors"
+              onClick={(e) => {
+                e.preventDefault()
+                setActiveNav('Contact')
+              }}
+              className={`text-gray-700 hover:text-gray-900 transition-colors pb-1 relative ${
+                activeNav === 'Contact' ? 'text-gray-900' : ''
+              }`}
             >
               Contact
+              {activeNav === 'Contact' && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900"></span>
+              )}
             </a>
             <a
               href="#about"
-              className="text-gray-700 hover:text-gray-900 transition-colors"
+              onClick={(e) => {
+                e.preventDefault()
+                setActiveNav('About')
+              }}
+              className={`text-gray-700 hover:text-gray-900 transition-colors pb-1 relative ${
+                activeNav === 'About' ? 'text-gray-900' : ''
+              }`}
             >
               About
+              {activeNav === 'About' && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900"></span>
+              )}
             </a>
           </nav>
 
