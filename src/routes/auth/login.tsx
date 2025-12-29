@@ -1,21 +1,39 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useForm } from '@tanstack/react-form'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useState } from 'react'
+import { useAuth } from '@/contexts/AuthContext'
 
 export const Route = createFileRoute('/auth/login')({
   component: Login,
 })
 
 function Login() {
+  const navigate = useNavigate()
+  const { login } = useAuth()
+  const [authError, setAuthError] = useState<string | null>(null)
+
   const form = useForm({
     defaultValues: {
       email: '',
       password: '',
     },
     onSubmit: async ({ value }) => {
-      console.log('Login submitted:', value)
+      setAuthError(null)
+      const success = await login(value.email, value.password)
+      if (success) {
+        const stored = typeof window !== 'undefined' ? localStorage.getItem('user') : null
+        const user = stored ? JSON.parse(stored) : null
+        if (user?.role === 'admin') {
+          navigate({ to: '/admin/products' })
+        } else {
+          navigate({ to: '/' })
+        }
+      } else {
+        setAuthError('Invalid email or password')
+      }
     },
   })
 
@@ -114,6 +132,9 @@ function Login() {
               )}
             </form.Field>
 
+            {authError && (
+              <p className="text-sm text-red-600">{authError}</p>
+            )}
             <div className="flex items-center justify-between gap-4">
               <Button
                 type="submit"
