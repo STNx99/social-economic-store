@@ -1,12 +1,9 @@
-import { Link } from '@tanstack/react-router'
-import { Heart, ShoppingCart, LogOut } from 'lucide-react'
-import { Button } from './ui/button'
-import {
-  Command,
-  CommandInput,
-} from './ui/command'
-import { useAuth } from '@/contexts/AuthContext'
-import { Avatar, AvatarFallback } from './ui/avatar'
+import { Link } from "@tanstack/react-router";
+import { Heart, ShoppingCart, LogOut } from "lucide-react";
+import { Button } from "./ui/button";
+import { Command, CommandInput } from "./ui/command";
+import { useAuth } from "@/contexts/AuthContext";
+import { Avatar, AvatarFallback } from "./ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,27 +11,26 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from './ui/dropdown-menu'
+} from "./ui/dropdown-menu";
 
 export default function Header() {
-  const { user, logout, isAuthenticated, isAdmin } = useAuth()
+  const { user, logout, isAuthenticated, isAdmin } = useAuth();
 
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="text-2xl font-bold text-gray-900">
             Social e-commerce
           </Link>
 
-          {/* Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden md:flex items-center space-x-8 ">
             <Link
               to="/"
               className="text-gray-700 hover:text-gray-900 transition-colors"
               activeProps={{
-                className: 'text-gray-900 underline underline-offset-4',
+                className: "text-gray-900 underline underline-offset-4",
               }}
             >
               Home
@@ -56,24 +52,35 @@ export default function Header() {
           </nav>
 
           {/* Search and Icons */}
-          <div className="flex items-center gap-4">
-            <div className="w-[280px]">
+          <div className="flex items-center gap-4 px-2">
+            <div className="w-64">
               <Command className="rounded-lg border border-gray-300 shadow-sm">
                 <CommandInput placeholder="What are you looking for?" />
               </Command>
             </div>
             <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" className="text-gray-700 hover:text-gray-900 transition-colors">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-gray-700 hover:text-gray-900 transition-colors"
+              >
                 <Heart size={24} />
               </Button>
-              <Button variant="ghost" size="icon" className="text-gray-700 hover:text-gray-900 transition-colors">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-gray-700 hover:text-gray-900 transition-colors"
+              >
                 <ShoppingCart size={24} />
               </Button>
-              
+
               {isAuthenticated ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                    <Button
+                      variant="ghost"
+                      className="relative h-10 w-10 rounded-full"
+                    >
                       <Avatar className="h-10 w-10">
                         <AvatarFallback className="bg-blue-500 text-white">
                           {user?.name.charAt(0).toUpperCase()}
@@ -84,7 +91,9 @@ export default function Header() {
                   <DropdownMenuContent className="w-56" align="end" forceMount>
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{user?.name}</p>
+                        <p className="text-sm font-medium leading-none">
+                          {user?.name}
+                        </p>
                         <p className="text-xs leading-none text-muted-foreground">
                           {user?.email}
                         </p>
@@ -101,7 +110,10 @@ export default function Header() {
                         <DropdownMenuSeparator />
                       </>
                     )}
-                    <DropdownMenuItem onClick={logout} className="cursor-pointer">
+                    <DropdownMenuItem
+                      onClick={logout}
+                      className="cursor-pointer"
+                    >
                       <LogOut className="mr-2 h-4 w-4" />
                       <span>Log out</span>
                     </DropdownMenuItem>
@@ -119,5 +131,5 @@ export default function Header() {
         </div>
       </div>
     </header>
-  )
+  );
 }
