@@ -1,76 +1,81 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react'
-
-interface User {
-  id: string
-  email: string
-  name: string
-  role: 'admin' | 'customer'
-}
+import { authService } from '@/services/auth.service'
+import { User } from '@/interfaces'
 
 interface AuthContextType {
   user: User | null
   login: (email: string, password: string) => Promise<boolean>
+  register: (name: string, email: string, password: string) => Promise<boolean>
   logout: () => void
   isAuthenticated: boolean
   isAdmin: boolean
+  error: string | null
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const storedUser = localStorage.getItem('user')
-      if (storedUser) {
-        setUser(JSON.parse(storedUser))
-      }
+    const storedUser = authService.getStoredUser()
+    if (storedUser) {
+      setUser(storedUser)
     }
   }, [])
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    if (email === 'admin@example.com' && password === 'admin123') {
-      const adminUser: User = {
-        id: '1',
-        email: email,
-        name: 'Admin User',
-        role: 'admin',
+    try {
+      setError(null)
+      const response = await authService.login({ email, password })
+      
+      if (response.success && response.data?.user) {
+        setUser(response.data.user)
+        return true
       }
-      setUser(adminUser)
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('user', JSON.stringify(adminUser))
-      }
-      return true
-    } else if (email && password) {
-      const customerUser: User = {
-        id: '2',
-        email: email,
-        name: 'Customer User',
-        role: 'customer',
-      }
-      setUser(customerUser)
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('user', JSON.stringify(customerUser))
-      }
-      return true
+      
+      setError(response.message || 'Login failed')
+      return false
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Login failed'
+      setError(errorMessage)
+      return false
     }
-    return false
+  }
+
+  const register = async (name: string, email: string, password: string): Promise<boolean> => {
+    try {
+      setError(null)
+      const response = await authService.register({ name, email, password })
+      
+      if (response.success) {
+        return true
+      }
+      
+      setError(response.message || 'Registration failed')
+      return false
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Registration failed'
+      setError(errorMessage)
+      return false
+    }
   }
 
   const logout = () => {
+    authService.logout()
     setUser(null)
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('user')
-    }
+    setError(null)
   }
 
   const value: AuthContextType = {
     user,
     login,
+    register,
     logout,
     isAuthenticated: !!user,
     isAdmin: user?.role === 'admin',
+    error,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

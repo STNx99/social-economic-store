@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
+import { emailSchema } from '@/utils/auth.schema'
 
 export const Route = createFileRoute('/auth/login')({
   component: Login,
@@ -12,8 +13,8 @@ export const Route = createFileRoute('/auth/login')({
 
 function Login() {
   const navigate = useNavigate()
-  const { login } = useAuth()
-  const [authError, setAuthError] = useState<string | null>(null)
+  const { login, error: authError } = useAuth()
+  const [isLoading, setIsLoading] = useState(false)
 
   const form = useForm({
     defaultValues: {
@@ -21,8 +22,10 @@ function Login() {
       password: '',
     },
     onSubmit: async ({ value }) => {
-      setAuthError(null)
+      setIsLoading(true)
       const success = await login(value.email, value.password)
+      setIsLoading(false)
+      
       if (success) {
         const stored = typeof window !== 'undefined' ? localStorage.getItem('user') : null
         const user = stored ? JSON.parse(stored) : null
@@ -31,8 +34,6 @@ function Login() {
         } else {
           navigate({ to: '/' })
         }
-      } else {
-        setAuthError('Invalid email or password')
       }
     },
   })
@@ -69,10 +70,10 @@ function Login() {
             <form.Field
               name="email"
               validators={{
-                onChange: ({ value }) =>
-                  !value
-                    ? 'Email is required'
-                    : undefined,
+                onChange: ({ value }) => {
+                  const result = emailSchema.safeParse(value);
+                  return result.success ? undefined : result.error.errors[0].message;
+                },
               }}
             >
               {(field) => (
@@ -139,8 +140,9 @@ function Login() {
               <Button
                 type="submit"
                 className="bg-red-500 hover:bg-red-600 text-white px-12"
+                disabled={isLoading}
               >
-                Log In
+                {isLoading ? 'Logging in...' : 'Log In'}
               </Button>
               <a
                 href="#forgot-password"
