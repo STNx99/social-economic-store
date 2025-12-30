@@ -1,20 +1,23 @@
 import { useState } from 'react'
-import { Heart } from 'lucide-react'
+import { Heart, Star } from 'lucide-react'
 import { MockProduct } from '../../data/demo.products'
 import { Card } from '../ui/card'
 import { Button } from '../ui/button'
+import { cn } from '@/lib/utils'
 
 interface ProductCardProps {
   product: MockProduct
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  const [isFavorite, setIsFavorite] = useState(false)
+  const [isFavorite, setIsFavorite] = useState<boolean>(false)
   const renderStars = () => {
     return Array.from({ length: 5 }).map((_, i) => (
-      <span key={i} className="text-yellow-400">
-        ★
-      </span>
+      <Star
+        key={i}
+        size={16}
+        className="text-yellow-400 fill-yellow-400"
+      />
     ))
   }
 
@@ -36,7 +39,9 @@ export default function ProductCard({ product }: ProductCardProps) {
       >
         <Heart 
           size={16} 
-          className={isFavorite ? "text-red-500 fill-red-500" : "text-gray-600"} 
+          className={cn(
+            isFavorite ? "text-red-500 fill-red-500" : "text-gray-600"
+          )} 
         />
       </div>
       <Card className="overflow-hidden hover:shadow-lg transition-shadow border-0 py-0 gap-0">

@@ -1,26 +1,52 @@
 import { ChevronRight } from 'lucide-react'
 import { categories } from '../../data/demo.products'
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+} from '../ui/sidebar'
+import { cn } from '@/lib/utils'
 
 export default function CategorySidebar() {
+  const hasSubmenu = (categoryName: string) => {
+    return categoryName === "Woman's Fashion" || categoryName === "Men's Fashion"
+  }
+
   return (
-    <aside className="w-64 bg-white border-r border-gray-200 p-3 flex flex-col">
-      <nav className="space-y-1 flex-1">
-        {categories.map((category) => (
-          <div
-            key={category.id}
-            className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-gray-200 cursor-pointer transition-colors group"
-          >
-            <span className="text-gray-700 text-sm font-medium group-hover:text-gray-900 transition-colors">{category.name}</span>
-            {(category.name === "Woman's Fashion" || category.name === "Men's Fashion") && (
-              <ChevronRight
-                size={16}
-                className="text-gray-400 group-hover:text-gray-600 transition-colors"
-              />
-            )}
-          </div>
-        ))}
-      </nav>
-    </aside>
+    <Sidebar className="w-64 !w-64">
+      <SidebarHeader>
+      </SidebarHeader>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarMenu>
+            {categories.map((category) => (
+              <SidebarMenuItem key={category.id}>
+                <SidebarMenuButton
+                  className={cn(
+                    "w-full justify-between py-2 px-3 rounded-lg hover:bg-gray-200 text-gray-700 text-sm font-medium hover:text-gray-900 transition-colors group"
+                  )}
+                >
+                  <span>{category.name}</span>
+                  {hasSubmenu(category.name) && (
+                    <ChevronRight
+                      size={16}
+                      className="text-gray-400 group-hover:text-gray-600 transition-colors"
+                    />
+                  )}
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarGroup>
+      </SidebarContent>
+      <SidebarFooter>
+      </SidebarFooter>
+    </Sidebar>
   )
 }
 

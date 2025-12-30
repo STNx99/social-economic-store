@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react'
 import { ArrowRight } from 'lucide-react'
 import { bannerSlides } from '../../data/demo.banner'
 import { Button } from '../ui/button'
+import { cn } from '@/lib/utils'
 
 export default function HeroBanner() {
-  const [currentSlide, setCurrentSlide] = useState(0)
+  const [currentSlide, setCurrentSlide] = useState<number>(0)
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -57,11 +58,12 @@ export default function HeroBanner() {
           <button
             key={index}
             onClick={() => goToSlide(index)}
-            className={`w-2 h-2 rounded-full transition-all cursor-pointer ${
+            className={cn(
+              "w-2 h-2 rounded-full transition-all cursor-pointer",
               index === currentSlide
                 ? 'bg-red-500 border border-white'
                 : 'bg-gray-500 hover:bg-gray-400'
-            }`}
+            )}
             aria-label={`Go to slide ${index + 1}`}
           />
         ))}

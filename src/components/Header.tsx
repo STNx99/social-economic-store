@@ -2,13 +2,11 @@ import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { Heart, ShoppingCart } from 'lucide-react'
 import { Button } from './ui/button'
-import {
-  Command,
-  CommandInput,
-} from './ui/command'
+import {Command,CommandInput } from './ui/command'
+import { cn } from '@/lib/utils'
 
 export default function Header() {
-  const [activeNav, setActiveNav] = useState('Home')
+  const [activeNav, setActiveNav] = useState<string>('Home')
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm">
       <div className="container mx-auto px-4">
@@ -23,9 +21,10 @@ export default function Header() {
             <Link
               to="/"
               onClick={() => setActiveNav('Home')}
-              className={`text-gray-700 hover:text-gray-900 transition-colors pb-1 relative ${
-                activeNav === 'Home' ? 'text-gray-900' : ''
-              }`}
+              className={cn(
+                "text-gray-700 hover:text-gray-900 transition-colors pb-1 relative",
+                activeNav === 'Home' && 'text-gray-900'
+              )}
             >
               Home
               {activeNav === 'Home' && (
@@ -38,9 +37,10 @@ export default function Header() {
                 e.preventDefault()
                 setActiveNav('Contact')
               }}
-              className={`text-gray-700 hover:text-gray-900 transition-colors pb-1 relative ${
-                activeNav === 'Contact' ? 'text-gray-900' : ''
-              }`}
+              className={cn(
+                "text-gray-700 hover:text-gray-900 transition-colors pb-1 relative",
+                activeNav === 'Contact' && 'text-gray-900'
+              )}
             >
               Contact
               {activeNav === 'Contact' && (
@@ -53,9 +53,10 @@ export default function Header() {
                 e.preventDefault()
                 setActiveNav('About')
               }}
-              className={`text-gray-700 hover:text-gray-900 transition-colors pb-1 relative ${
-                activeNav === 'About' ? 'text-gray-900' : ''
-              }`}
+              className={cn(
+                "text-gray-700 hover:text-gray-900 transition-colors pb-1 relative",
+                activeNav === 'About' && 'text-gray-900'
+              )}
             >
               About
               {activeNav === 'About' && (

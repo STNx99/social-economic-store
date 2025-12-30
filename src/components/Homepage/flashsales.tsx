@@ -1,7 +1,12 @@
 import { useState, useEffect } from 'react'
 
 export default function FlashSalesCountdown() {
-  const [timeLeft, setTimeLeft] = useState({
+  const [timeLeft, setTimeLeft] = useState<{
+    days: number
+    hours: number
+    minutes: number
+    seconds: number
+  }>({
     days: 3,
     hours: 23,
     minutes: 19,
