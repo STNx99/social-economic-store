@@ -1,5 +1,7 @@
 import * as React from "react"
-import useEmblaCarousel, {type UseEmblaCarouselType} from "embla-carousel-react"
+import useEmblaCarousel, {
+  type UseEmblaCarouselType,
+} from "embla-carousel-react"
 import { ArrowLeft, ArrowRight } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -112,14 +114,16 @@ function Carousel({
         scrollNext,
         canScrollPrev,
         canScrollNext,
-      }}>
+      }}
+    >
       <div
         onKeyDownCapture={handleKeyDown}
         className={cn("relative", className)}
         role="region"
         aria-roledescription="carousel"
         data-slot="carousel"
-        {...props}>
+        {...props}
+      >
         {children}
       </div>
     </CarouselContext.Provider>
@@ -133,7 +137,8 @@ function CarouselContent({ className, ...props }: React.ComponentProps<"div">) {
     <div
       ref={carouselRef}
       className="overflow-hidden"
-      data-slot="carousel-content">
+      data-slot="carousel-content"
+    >
       <div
         className={cn(
           "flex",
@@ -186,7 +191,8 @@ function CarouselPrevious({
       )}
       disabled={!canScrollPrev}
       onClick={scrollPrev}
-      {...props}>
+      {...props}
+    >
       <ArrowLeft />
       <span className="sr-only">Previous slide</span>
     </Button>
@@ -215,7 +221,8 @@ function CarouselNext({
       )}
       disabled={!canScrollNext}
       onClick={scrollNext}
-      {...props}>
+      {...props}
+    >
       <ArrowRight />
       <span className="sr-only">Next slide</span>
     </Button>

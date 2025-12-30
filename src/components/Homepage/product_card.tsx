@@ -18,7 +18,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         size={16}
         className="text-yellow-400 fill-yellow-400"
       />
-    ))
+    ))  
   }
 
   return (

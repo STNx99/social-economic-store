@@ -1,12 +1,24 @@
-import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
-import { Heart, ShoppingCart } from 'lucide-react'
+import { Heart, ShoppingCart, LogOut } from 'lucide-react'
 import { Button } from './ui/button'
-import {Command,CommandInput } from './ui/command'
-import { cn } from '@/lib/utils'
+import {
+  Command,
+  CommandInput,
+} from './ui/command'
+import { useAuth } from '@/contexts/AuthContext'
+import { Avatar, AvatarFallback } from './ui/avatar'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from './ui/dropdown-menu'
 
 export default function Header() {
-  const [activeNav, setActiveNav] = useState<string>('Home')
+  const { user, logout, isAuthenticated, isAdmin } = useAuth()
+
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm">
       <div className="container mx-auto px-4">
@@ -20,49 +32,27 @@ export default function Header() {
           <nav className="hidden md:flex items-center space-x-8">
             <Link
               to="/"
-              onClick={() => setActiveNav('Home')}
-              className={cn(
-                "text-gray-700 hover:text-gray-900 transition-colors pb-1 relative",
-                activeNav === 'Home' && 'text-gray-900'
-              )}
+              className="text-gray-700 hover:text-gray-900 transition-colors"
+              activeProps={{
+                className: 'text-gray-900 underline underline-offset-4',
+              }}
             >
               Home
-              {activeNav === 'Home' && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900"></span>
-              )}
             </Link>
-            <a
-              href="#contact"
-              onClick={(e) => {
-                e.preventDefault()
-                setActiveNav('Contact')
-              }}
-              className={cn(
-                "text-gray-700 hover:text-gray-900 transition-colors pb-1 relative",
-                activeNav === 'Contact' && 'text-gray-900'
-              )}
+            <Link
+              to="/"
+              hash="#contact"
+              className="text-gray-700 hover:text-gray-900 transition-colors"
             >
               Contact
-              {activeNav === 'Contact' && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900"></span>
-              )}
-            </a>
-            <a
-              href="#about"
-              onClick={(e) => {
-                e.preventDefault()
-                setActiveNav('About')
-              }}
-              className={cn(
-                "text-gray-700 hover:text-gray-900 transition-colors pb-1 relative",
-                activeNav === 'About' && 'text-gray-900'
-              )}
+            </Link>
+            <Link
+              to="/"
+              hash="#about"
+              className="text-gray-700 hover:text-gray-900 transition-colors"
             >
               About
-              {activeNav === 'About' && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900"></span>
-              )}
-            </a>
+            </Link>
           </nav>
 
           {/* Search and Icons */}
@@ -73,17 +63,57 @@ export default function Header() {
               </Command>
             </div>
             <div className="flex items-center gap-3">
-              <Button className="text-gray-700 hover:text-gray-900 transition-colors">
+              <Button variant="ghost" size="icon" className="text-gray-700 hover:text-gray-900 transition-colors">
                 <Heart size={24} />
               </Button>
-              <Button className="text-gray-700 hover:text-gray-900 transition-colors">
+              <Button variant="ghost" size="icon" className="text-gray-700 hover:text-gray-900 transition-colors">
                 <ShoppingCart size={24} />
               </Button>
-              <Link to="/auth/register">
-                <Button className="bg-red-500 hover:bg-red-600 px-8">
-                  Sign Up
-                </Button>
-              </Link>
+              
+              {isAuthenticated ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                      <Avatar className="h-10 w-10">
+                        <AvatarFallback className="bg-blue-500 text-white">
+                          {user?.name.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">{user?.name}</p>
+                        <p className="text-xs leading-none text-muted-foreground">
+                          {user?.email}
+                        </p>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    {isAdmin && (
+                      <>
+                        <DropdownMenuItem asChild>
+                          <Link to="/admin/products" className="cursor-pointer">
+                            Admin Dashboard
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                      </>
+                    )}
+                    <DropdownMenuItem onClick={logout} className="cursor-pointer">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Log out</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Link to="/auth/login">
+                  <Button className="bg-red-500 hover:bg-red-600 px-8">
+                    Sign In
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
         </div>
