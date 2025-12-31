@@ -120,11 +120,18 @@ export default function Header() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <Link to="/auth/login">
-                  <Button className="bg-red-500 hover:bg-red-600 px-8">
-                    Sign In
-                  </Button>
-                </Link>
+                <div className="flex items-center gap-2">
+                  <Link to="/auth/login">
+                    <Button className="bg-red-500 hover:bg-red-600 px-6">
+                      Sign In
+                    </Button>
+                  </Link>
+                  <Link to="/auth/register">
+                    <Button variant="outline" className="px-6 border-red-500 text-red-600 hover:bg-red-50">
+                      Sign Up
+                    </Button>
+                  </Link>
+                </div>
               )}
             </div>
           </div>

@@ -54,6 +54,11 @@ export interface CancelOrderRequest {
   reason: string
 }
 
+export interface UpdateOrderStatusRequest {
+  status: string
+  note?: string
+}
+
 export interface ReturnOrderRequest {
   reason: string
   items: Array<{

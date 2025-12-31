@@ -1,14 +1,22 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useForm } from '@tanstack/react-form'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useAuth } from '@/contexts/AuthContext'
+import { useState } from 'react'
+import { nameSchema, emailSchema, passwordSchema } from '@/utils/auth.schema'
 
 export const Route = createFileRoute('/auth/register')({
   component: Register,
 })
 
 function Register() {
+  const navigate = useNavigate()
+  const { register, error: authError } = useAuth()
+  const [isLoading, setIsLoading] = useState(false)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
+
   const form = useForm({
     defaultValues: {
       name: '',
@@ -16,7 +24,17 @@ function Register() {
       password: '',
     },
     onSubmit: async ({ value }) => {
-      console.log('Register submitted:', value)
+      setIsLoading(true)
+      setSuccessMessage(null)
+      const success = await register(value.name, value.email, value.password)
+      setIsLoading(false)
+      
+      if (success) {
+        setSuccessMessage('Registration successful! Redirecting to login...')
+        setTimeout(() => {
+          navigate({ to: '/auth/login' })
+        }, 2000)
+      }
     },
   })
 
@@ -53,8 +71,10 @@ function Register() {
             <form.Field
               name="name"
               validators={{
-                onChange: ({ value }) =>
-                  !value ? 'Name is required' : undefined,
+                onChange: ({ value }) => {
+                  const result = nameSchema.safeParse(value);
+                  return result.success ? undefined : result.error.errors[0].message;
+                },
               }}
             >
               {(field) => (
@@ -83,8 +103,10 @@ function Register() {
             <form.Field
               name="email"
               validators={{
-                onChange: ({ value }) =>
-                  !value ? 'Email is required' : undefined,
+                onChange: ({ value }) => {
+                  const result = emailSchema.safeParse(value);
+                  return result.success ? undefined : result.error.errors[0].message;
+                },
               }}
             >
               {(field) => (
@@ -114,10 +136,10 @@ function Register() {
             <form.Field
               name="password"
               validators={{
-                onChange: ({ value }) =>
-                  value.length < 6
-                    ? 'Password must be at least 6 characters'
-                    : undefined,
+                onChange: ({ value }) => {
+                  const result = passwordSchema.safeParse(value);
+                  return result.success ? undefined : result.error.errors[0].message;
+                },
               }}
             >
               {(field) => (
@@ -144,12 +166,21 @@ function Register() {
               )}
             </form.Field>
 
+            {authError && (
+              <p className="text-sm text-red-600">{authError}</p>
+            )}
+            
+            {successMessage && (
+              <p className="text-sm text-green-600">{successMessage}</p>
+            )}
+
             <div className="space-y-4">
               <Button
                 type="submit"
                 className="w-full bg-red-500 hover:bg-red-600 text-white"
+                disabled={isLoading}
               >
-                Create Account
+                {isLoading ? 'Creating Account...' : 'Create Account'}
               </Button>
               <p className="text-center text-sm text-gray-600">
                 Already have account?{' '}
