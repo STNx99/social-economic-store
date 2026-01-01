@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SearchRouteImport } from './routes/search'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
@@ -17,6 +18,11 @@ import { Route as AdminSupportRouteImport } from './routes/admin/support'
 import { Route as AdminProductsRouteImport } from './routes/admin/products'
 import { Route as AdminCustomersRouteImport } from './routes/admin/customers'
 
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -55,6 +61,7 @@ const AdminCustomersRoute = AdminCustomersRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/search': typeof SearchRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/support': typeof AdminSupportRoute
@@ -64,6 +71,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/search': typeof SearchRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/support': typeof AdminSupportRoute
@@ -74,6 +82,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/search': typeof SearchRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/support': typeof AdminSupportRoute
@@ -85,6 +94,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/search'
     | '/admin/customers'
     | '/admin/products'
     | '/admin/support'
@@ -94,6 +104,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/search'
     | '/admin/customers'
     | '/admin/products'
     | '/admin/support'
@@ -103,6 +114,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/search'
     | '/admin/customers'
     | '/admin/products'
     | '/admin/support'
@@ -113,6 +125,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  SearchRoute: typeof SearchRoute
   AdminCustomersRoute: typeof AdminCustomersRoute
   AdminProductsRoute: typeof AdminProductsRoute
   AdminSupportRoute: typeof AdminSupportRoute
@@ -123,6 +136,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -177,6 +197,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  SearchRoute: SearchRoute,
   AdminCustomersRoute: AdminCustomersRoute,
   AdminProductsRoute: AdminProductsRoute,
   AdminSupportRoute: AdminSupportRoute,

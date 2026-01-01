@@ -3,7 +3,6 @@ export { authService } from './auth.service';
 export { productService } from './product.service';
 export { categoryService } from './category.service';
 export { orderService } from './order.service';
-export { cartService } from './cart.service';
 export { userService } from './user.service';
 export { reportService } from './report.service';
 export { paymentService } from './payment.service';
