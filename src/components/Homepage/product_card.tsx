@@ -4,6 +4,9 @@ import { MockProduct } from '../../data/demo.products'
 import { Card } from '../ui/card'
 import { Button } from '../ui/button'
 import { cn } from '@/lib/utils'
+import { useCart } from '@/contexts/CartContext'
+import { useToast } from '@/contexts/ToastContext'
+import { MESSAGES } from '@/lib/shared/constants/messages'
 
 interface ProductCardProps {
   product: MockProduct
@@ -11,6 +14,20 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const [isFavorite, setIsFavorite] = useState<boolean>(false)
+  const { addToCart } = useCart()
+  const { showToast } = useToast()
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    addToCart(product, 1)
+    
+    showToast({
+      title: MESSAGES.cart.addedToCart,
+      variant: 'success',
+      duration: 2000,
+      showOverlay: true,
+    })
+  }
   const renderStars = () => {
     return Array.from({ length: 5 }).map((_, i) => (
       <Star
@@ -55,6 +72,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             <Button
               className="w-full rounded-none transform translate-y-full group-hover:translate-y-0 bg-black hover:bg-black/90 text-white border-0"
               variant="default"
+              onClick={handleAddToCart}
             >
               Add To Cart
             </Button>

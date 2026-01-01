@@ -1,5 +1,6 @@
 import * as React from "react";
 import { ArrowRight, ChevronRight } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 import { bannerSlides } from "../../data/demo.banner";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
@@ -16,13 +17,22 @@ import { categories } from "@/data/demo.categories";
  * Displays a list of categories on the left side of the hero section.
  */
 function CategorySidebar() {
+  const navigate = useNavigate();
+  
+  const handleCategoryClick = (categoryName: string) => {
+    navigate({
+      to: '/search',
+      search: { q: categoryName }
+    });
+  };
+
   return (
     <div className="hidden md:flex flex-col gap-4 pr-8 border-r border-gray-200 min-w-[220px] pt-4">
       {categories.map((category) => (
         <div
           key={category.slug}
           className="flex items-center justify-between group cursor-pointer text-gray-700 hover:text-black transition-colors"
-          onClick={() => console.log(`Navigate to ${category.slug}`)}
+          onClick={() => handleCategoryClick(category.name)}
         >
           <span className="font-medium text-sm lg:text-base">{category.name}</span>
           <ChevronRight size={16} className="opacity-0 group-hover:opacity-100 transition-opacity" />

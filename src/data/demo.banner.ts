@@ -16,7 +16,7 @@ export const bannerSlides: BannerSlide[] = [
     subtitle: 'iPhone 14 Series',
     title: 'Up to 10% off Voucher',
     buttonText: 'Shop Now',
-    image: 'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=600',
+    image: 'https://www.apple.com/newsroom/images/product/iphone/standard/Apple-iPhone-14-Pro-iPhone-14-Pro-Max-hero-220907_Full-Bleed-Image.jpg.large.jpg',
   },
   {
     id: 2,

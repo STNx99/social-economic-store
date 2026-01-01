@@ -1,8 +1,9 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Heart, ShoppingCart, LogOut } from "lucide-react";
 import { Button } from "./ui/button";
 import { Command, CommandInput } from "./ui/command";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import {
   DropdownMenu,
@@ -12,9 +13,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { Badge } from "./ui/badge";
+import { useState } from "react";
 
 export default function Header() {
   const { user, logout, isAuthenticated, isAdmin } = useAuth();
+  const { getItemCount } = useCart();
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
 
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm">
@@ -55,7 +61,19 @@ export default function Header() {
           <div className="flex items-center gap-4 px-2">
             <div className="w-64">
               <Command className="rounded-lg border border-gray-300 shadow-sm">
-                <CommandInput placeholder="What are you looking for?" />
+                <CommandInput 
+                  placeholder="What are you looking for?" 
+                  value={searchQuery}
+                  onValueChange={setSearchQuery}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && searchQuery.trim()) {
+                      navigate({
+                        to: '/search',
+                        search: { q: searchQuery.trim() }
+                      });
+                    }
+                  }}
+                />
               </Command>
             </div>
             <div className="flex items-center gap-3">
@@ -69,9 +87,15 @@ export default function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-gray-700 hover:text-gray-900 transition-colors"
+                className="text-gray-700 hover:text-gray-900 transition-colors relative"
+                title="Cart (UI removed - logic available via useCart hook)"
               >
                 <ShoppingCart size={24} />
+                {getItemCount() > 0 && (
+                  <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-red-500 text-white text-xs">
+                    {getItemCount() > 99 ? '99+' : getItemCount()}
+                  </Badge>
+                )}
               </Button>
 
               {isAuthenticated ? (

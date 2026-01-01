@@ -2,6 +2,8 @@ import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 import { AuthProvider } from '@/contexts/AuthContext'
+import { CartProvider } from '@/contexts/CartContext'
+import { ToastProvider } from '@/contexts/ToastContext'
 
 import Header from '../components/Header'
 
@@ -40,8 +42,12 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <AuthProvider>
-          <Header />
-          {children}
+          <CartProvider>
+            <ToastProvider>
+              <Header />
+              {children}
+            </ToastProvider>
+          </CartProvider>
         </AuthProvider>
         <TanStackDevtools
           config={{
