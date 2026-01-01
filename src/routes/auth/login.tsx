@@ -28,6 +28,7 @@ function Login() {
       setIsLoading(false);
 
       if (success) {
+        // Use stored user from authService (cookie) to determine redirect
         const storedUser = authService.getStoredUser()
         if (storedUser?.role === 'admin') {
           navigate({ to: '/admin/products' })
