@@ -73,7 +73,7 @@ function Login() {
               validators={{
                 onChange: ({ value }) => {
                   const result = emailSchema.safeParse(value);
-                  return result.success ? undefined : result.error.message;
+                  return result.success ? undefined : result.error.issues[0].message;
                 },
               }}
             >

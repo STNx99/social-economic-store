@@ -73,7 +73,7 @@ function Register() {
               validators={{
                 onChange: ({ value }) => {
                   const result = nameSchema.safeParse(value);
-                  return result.success ? undefined : result.error.message;
+                  return result.success ? undefined : result.error.issues[0].message;
                 },
               }}
             >
@@ -105,7 +105,7 @@ function Register() {
               validators={{
                 onChange: ({ value }) => {
                   const result = emailSchema.safeParse(value);
-                  return result.success ? undefined : result.error.message;
+                  return result.success ? undefined : result.error.issues[0].message;
                 },
               }}
             >
@@ -138,7 +138,7 @@ function Register() {
               validators={{
                 onChange: ({ value }) => {
                   const result = passwordSchema.safeParse(value);
-                  return result.success ? undefined : result.error.message;
+                  return result.success ? undefined : result.error.issues[0].message;
                 },
               }}
             >
