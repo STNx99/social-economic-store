@@ -8,6 +8,7 @@ import { ToastProvider } from '@/contexts/ToastContext'
 import Header from '../components/Header'
 
 import appCss from '../styles.css?url'
+import Footer from '@/components/Homepage/Footer'
 
 export const Route = createRootRoute({
   head: () => ({
@@ -62,6 +63,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         />
         <Scripts />
       </body>
+      <Footer />
     </html>
   )
 }
