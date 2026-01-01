@@ -1,4 +1,3 @@
-import Footer from "@/components/Homepage/Footer";
 import { bestSellingProducts, exploreProducts } from "@/data/demo.products";
 import FlashSalesSection from "@/components/Homepage/FlashSalesSection";
 import BrowseCategorySection from "@/components/Homepage/BrowseCategorySection";
@@ -35,7 +34,6 @@ export default function HomePage() {
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 }
