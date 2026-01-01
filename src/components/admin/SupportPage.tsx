@@ -1,4 +1,4 @@
-import { AdminLayout } from '@/components/admin/AdminLayout'
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -159,8 +159,7 @@ export function SupportPage() {
   }
 
   return (
-    <AdminLayout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-3xl font-bold tracking-tight">Trung tâm hỗ trợ</h2>
@@ -372,6 +371,6 @@ export function SupportPage() {
           </CardContent>
         </Card>
       </div>
-    </AdminLayout>
+
   )
 }
