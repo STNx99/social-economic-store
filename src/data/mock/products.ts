@@ -5,16 +5,16 @@ export const mockProducts: Product[] = [
     id: 'prod-001',
     name: 'Áo thun nam basic',
     description: 'Áo thun nam chất liệu cotton cao cấp, thoáng mát, thấm hút mồ hôi tốt. Form regular fit phù hợp với mọi dáng người.',
-    categoryId: 'cat-001',
-    categoryName: 'Thời trang nam',
-    basePrice: 199000,
-    imageUrls: [
+    category: 'Thời trang nam',
+    price: 199000,
+    stock: 125,
+    images: [
       'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab',
       'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a',
     ],
     rating: 4.5,
     reviewCount: 128,
-    isActive: true,
+    status: 'active',
     variants: [
       {
         id: 'var-001',
@@ -54,16 +54,16 @@ export const mockProducts: Product[] = [
     id: 'prod-002',
     name: 'Quần jeans nam slim fit',
     description: 'Quần jeans nam form slim fit ôm vừa vặn, chất denim cao cấp co giãn nhẹ, thoải mái khi vận động.',
-    categoryId: 'cat-001',
-    categoryName: 'Thời trang nam',
-    basePrice: 449000,
-    imageUrls: [
+    category: 'Thời trang nam',
+    price: 449000,
+    stock: 45,
+    images: [
       'https://images.unsplash.com/photo-1542272604-787c3835535d',
       'https://images.unsplash.com/photo-1541099649105-f69ad21f3246',
     ],
     rating: 4.7,
     reviewCount: 95,
-    isActive: true,
+    status: 'active',
     variants: [
       {
         id: 'var-004',
@@ -93,15 +93,15 @@ export const mockProducts: Product[] = [
     id: 'prod-003',
     name: 'Áo sơ mi nữ công sở',
     description: 'Áo sơ mi nữ thiết kế thanh lịch, chất liệu vải mềm mại, phù hợp cho môi trường công sở.',
-    categoryId: 'cat-002',
-    categoryName: 'Thời trang nữ',
-    basePrice: 299000,
-    imageUrls: [
+    category: 'Thời trang nữ',
+    price: 299000,
+    stock: 75,
+    images: [
       'https://images.unsplash.com/photo-1591369822096-ffd140ec948f',
     ],
     rating: 4.6,
     reviewCount: 76,
-    isActive: true,
+    status: 'active',
     variants: [
       {
         id: 'var-006',
@@ -131,15 +131,15 @@ export const mockProducts: Product[] = [
     id: 'prod-004',
     name: 'Váy midi dự tiệc',
     description: 'Váy midi sang trọng, thiết kế hiện đại phù hợp cho các buổi tiệc và sự kiện.',
-    categoryId: 'cat-002',
-    categoryName: 'Thời trang nữ',
-    basePrice: 599000,
-    imageUrls: [
+    category: 'Thời trang nữ',
+    price: 599000,
+    stock: 27,
+    images: [
       'https://images.unsplash.com/photo-1595777457583-95e059d581b8',
     ],
     rating: 4.8,
     reviewCount: 52,
-    isActive: true,
+    status: 'active',
     variants: [
       {
         id: 'var-008',
@@ -169,15 +169,15 @@ export const mockProducts: Product[] = [
     id: 'prod-005',
     name: 'Giày sneaker nam',
     description: 'Giày sneaker nam thiết kế thể thao, đế êm ái, phù hợp cho hoạt động hàng ngày.',
-    categoryId: 'cat-003',
-    categoryName: 'Giày dép',
-    basePrice: 799000,
-    imageUrls: [
+    category: 'Giày dép',
+    price: 799000,
+    stock: 60,
+    images: [
       'https://images.unsplash.com/photo-1549298916-b41d501d3772',
     ],
     rating: 4.4,
     reviewCount: 143,
-    isActive: true,
+    status: 'active',
     variants: [
       {
         id: 'var-010',
@@ -217,15 +217,15 @@ export const mockProducts: Product[] = [
     id: 'prod-006',
     name: 'Túi xách nữ da PU',
     description: 'Túi xách nữ chất liệu da PU cao cấp, thiết kế sang trọng, nhiều ngăn tiện dụng.',
-    categoryId: 'cat-004',
-    categoryName: 'Phụ kiện',
-    basePrice: 349000,
-    imageUrls: [
+    category: 'Phụ kiện',
+    price: 349000,
+    stock: 60,
+    images: [
       'https://images.unsplash.com/photo-1584917865442-de89df76afd3',
     ],
     rating: 4.3,
     reviewCount: 68,
-    isActive: true,
+    status: 'active',
     variants: [
       {
         id: 'var-013',
@@ -254,8 +254,36 @@ export const mockProducts: Product[] = [
 ]
 
 export const mockCategories: Category[] = [
-  { id: 'cat-001', name: 'Thời trang nam' },
-  { id: 'cat-002', name: 'Thời trang nữ' },
-  { id: 'cat-003', name: 'Giày dép' },
-  { id: 'cat-004', name: 'Phụ kiện' },
+  { 
+    id: 'cat-001', 
+    name: 'Thời trang nam', 
+    description: 'Quần áo và phụ kiện dành cho nam giới',
+    slug: 'thoi-trang-nam',
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z'
+  },
+  { 
+    id: 'cat-002', 
+    name: 'Thời trang nữ', 
+    description: 'Quần áo và phụ kiện dành cho nữ giới',
+    slug: 'thoi-trang-nu',
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z'
+  },
+  { 
+    id: 'cat-003', 
+    name: 'Giày dép', 
+    description: 'Các loại giày dép thời trang',
+    slug: 'giay-dep',
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z'
+  },
+  { 
+    id: 'cat-004', 
+    name: 'Phụ kiện', 
+    description: 'Túi xách, ví và các phụ kiện khác',
+    slug: 'phu-kien',
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z'
+  },
 ]

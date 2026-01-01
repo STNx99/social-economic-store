@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuth } from '@/contexts/AuthContext'
 import { useState } from 'react'
-import { nameSchema, emailSchema, passwordSchema } from '@/utils/auth.schema'
+import { nameSchema, emailSchema, passwordSchema } from '@/lib/schema/auth.schema'
 
 export const Route = createFileRoute('/auth/register')({
   component: Register,

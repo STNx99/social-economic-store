@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useCart } from '@/contexts/CartContext'
-import { PaymentMethod } from '@/interfaces/order'
+import { PaymentMethod } from '@/interfaces'
 
 export interface CheckoutFormData {
   firstName: string

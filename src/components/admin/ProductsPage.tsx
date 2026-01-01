@@ -29,7 +29,7 @@ export function ProductsPage() {
 
   const filteredProducts = products.filter(product =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    product.categoryName.toLowerCase().includes(searchQuery.toLowerCase())
+    (product.category?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
   )
 
   return (
@@ -118,19 +118,22 @@ export function ProductsPage() {
               </TableHeader>
               <TableBody>
                 {filteredProducts.map((product) => {
-                  const totalStock = product.variants.reduce((sum, variant) => sum + variant.stock, 0)
+                  const totalStock = product.variants 
+                    ? product.variants.reduce((sum, variant) => sum + variant.stock, 0)
+                    : product.stock
+                  
                   return (
                     <TableRow key={product.id}>
                       <TableCell>
                         <img
-                          src={product.imageUrls[0]}
+                          src={product.images[0] || 'https://via.placeholder.com/150'}
                           alt={product.name}
                           className="h-12 w-12 rounded object-cover"
                         />
                       </TableCell>
                       <TableCell className="font-medium">{product.name}</TableCell>
-                      <TableCell>{product.categoryName}</TableCell>
-                      <TableCell>{product.basePrice.toLocaleString('vi-VN')}₫</TableCell>
+                      <TableCell>{product.category || 'N/A'}</TableCell>
+                      <TableCell>{product.price.toLocaleString('vi-VN')}₫</TableCell>
                       <TableCell>
                         <Badge variant={totalStock > 50 ? 'default' : totalStock > 0 ? 'secondary' : 'destructive'}>
                           {totalStock} sp
@@ -139,13 +142,13 @@ export function ProductsPage() {
                       <TableCell>
                         <div className="flex items-center gap-1">
                           <span className="text-yellow-500">★</span>
-                          <span>{product.rating}</span>
-                          <span className="text-muted-foreground">({product.reviewCount})</span>
+                          <span>{product.rating || 0}</span>
+                          <span className="text-muted-foreground">({product.reviewCount || 0})</span>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={product.isActive ? 'default' : 'secondary'}>
-                          {product.isActive ? 'Hoạt động' : 'Tạm ngưng'}
+                        <Badge variant={product.status === 'active' ? 'default' : 'secondary'}>
+                          {product.status === 'active' ? 'Hoạt động' : product.status}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
@@ -188,7 +191,9 @@ export function ProductsPage() {
             <CardContent>
               <div className="text-3xl font-bold text-orange-600">
                 {products.filter(p => {
-                  const total = p.variants.reduce((sum, v) => sum + v.stock, 0)
+                  const total = p.variants 
+                    ? p.variants.reduce((sum, v) => sum + v.stock, 0)
+                    : p.stock
                   return total > 0 && total <= 20
                 }).length}
               </div>
@@ -204,7 +209,9 @@ export function ProductsPage() {
             <CardContent>
               <div className="text-3xl font-bold text-red-600">
                 {products.filter(p => {
-                  const total = p.variants.reduce((sum, v) => sum + v.stock, 0)
+                  const total = p.variants 
+                    ? p.variants.reduce((sum, v) => sum + v.stock, 0)
+                    : p.stock
                   return total === 0
                 }).length}
               </div>

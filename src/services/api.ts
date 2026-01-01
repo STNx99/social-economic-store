@@ -1,4 +1,7 @@
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig, AxiosResponse } from "axios";
+import Cookies from 'universal-cookie';
+
+const cookies = new Cookies(null, { path: '/' });
 
 export class ApiClient {
   private static instance: ApiClient;
@@ -32,20 +35,9 @@ export class ApiClient {
   private setupInterceptors() {
     this.client.interceptors.request.use(
       (config: InternalAxiosRequestConfig) => {
-        if (typeof window !== 'undefined') {
-          const getCookie = (name: string): string | null => {
-            const value = `; ${document.cookie}`;
-            const parts = value.split(`; ${name}=`);
-            if (parts.length === 2) {
-              return parts.pop()?.split(';').shift() || null;
-            }
-            return null;
-          };
-          
-          const token = getCookie('accessToken');
-          if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-          }
+        const token = cookies.get('accessToken');
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
       },
