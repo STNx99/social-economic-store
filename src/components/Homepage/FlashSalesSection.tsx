@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import ProductCard from "./product_card";
-import SectionHeader from "./section_header";
+import ProductCard from "./ProductCard";
+import SectionHeader from "./SectionHeader";
 import { Button } from "@/components/ui/button";
 import { flashSaleProducts } from "@/data/demo.products";
 

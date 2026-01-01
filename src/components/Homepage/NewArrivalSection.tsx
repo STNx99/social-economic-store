@@ -1,4 +1,4 @@
-import SectionHeader from "./section_header";
+import SectionHeader from "./SectionHeader";
 import { newArrivalBanners } from "@/data/demo.newarrival";
 import { cn } from "@/lib/utils";
 

@@ -1,5 +1,5 @@
-import ProductCard from "./product_card";
-import SectionHeader from "./section_header";
+import ProductCard from "./ProductCard";
+import SectionHeader from "./SectionHeader";
 import { bestSellingProducts } from "@/data/demo.products";
 
 interface ProductGridSectionProps {

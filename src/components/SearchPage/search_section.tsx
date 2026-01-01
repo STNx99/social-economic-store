@@ -1,4 +1,4 @@
-import ProductCard from '../Homepage/product_card'
+import ProductCard from '../Homepage/ProductCard'
 import { MockProduct } from '@/data/demo.products'
 
 interface SearchSectionProps {
