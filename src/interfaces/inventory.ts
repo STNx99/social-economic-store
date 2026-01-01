@@ -5,11 +5,12 @@ export type InventoryMovementType = 'in' | 'out'
 export type InventoryMovementReason = 'purchase' | 'sale' | 'return' | 'adjustment' | 'damaged'
 
 export interface InventoryItem {
+  id: string
   variantId: string
   variantSku: string
   productId: string
   productName: string
-  variantName: string
+  category: string
   stock: number
   reserved: number
   available: number
@@ -39,7 +40,7 @@ export interface AdjustInventoryRequest {
 export interface SlowMovingItem {
   variantId: string
   productName: string
-  variantName: string
+  category: string
   stock: number
   daysSinceLastSale: number
   totalValue: number
