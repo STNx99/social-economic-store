@@ -1,4 +1,4 @@
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
+import { HeadContent, Scripts, createRootRoute, useLocation } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 import { AuthProvider } from '@/contexts/AuthContext'
@@ -8,6 +8,7 @@ import { ToastProvider } from '@/contexts/ToastContext'
 import Header from '../components/Header'
 
 import appCss from '../styles.css?url'
+import Footer from '@/components/Homepage/Footer'
 
 export const Route = createRootRoute({
   head: () => ({
@@ -35,6 +36,9 @@ export const Route = createRootRoute({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const location = useLocation()
+  const isAdmin = location.pathname.startsWith('/admin')
+
   return (
     <html lang="en">
       <head>
@@ -44,7 +48,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <AuthProvider>
           <CartProvider>
             <ToastProvider>
-              <Header />
+              {!isAdmin && <Header />}
               {children}
             </ToastProvider>
           </CartProvider>
@@ -61,6 +65,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           ]}
         />
         <Scripts />
+      {!isAdmin && <Footer />}
       </body>
     </html>
   )
