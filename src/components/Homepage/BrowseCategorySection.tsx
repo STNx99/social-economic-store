@@ -1,5 +1,5 @@
 import { useState } from "react";
-import SectionHeader from "./section_header";
+import SectionHeader from "./SectionHeader";
 import { categories, iconMap } from "@/data/demo.categories";
 import { cn } from "@/lib/utils";
 

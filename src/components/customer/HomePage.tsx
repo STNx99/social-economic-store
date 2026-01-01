@@ -1,10 +1,10 @@
-import Footer from "@/components/Homepage/footer";
+import Footer from "@/components/Homepage/Footer";
 import { bestSellingProducts, exploreProducts } from "@/data/demo.products";
-import FlashSalesSection from "@/components/Homepage/flash_sales_section";
-import BrowseCategorySection from "@/components/Homepage/browse_category_section";
-import ProductGridSection from "@/components/Homepage/product_grid_section";
-import NewArrivalSection from "@/components/Homepage/new_arrival_section";
-import HeroSection from "@/components/Homepage/hero_section";
+import FlashSalesSection from "@/components/Homepage/FlashSalesSection";
+import BrowseCategorySection from "@/components/Homepage/BrowseCategorySection";
+import ProductGridSection from "@/components/Homepage/ProductGridSection";
+import NewArrivalSection from "@/components/Homepage/NewArrivalSection";
+import HeroSection from "@/components/Homepage/HeroSection";
 import { Separator } from "../ui/separator";
 
 export default function HomePage() {
