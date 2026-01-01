@@ -1,11 +1,12 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useForm } from "@tanstack/react-form";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
-import { emailSchema } from "@/utils/auth.schema";
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { useForm } from '@tanstack/react-form'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { useState } from 'react'
+import { useAuth } from '@/contexts/AuthContext'
+import { emailSchema } from '@/utils/auth.schema'
+import { authService } from '@/services/auth.service'
 
 export const Route = createFileRoute("/auth/login")({
   component: Login,
@@ -27,11 +28,10 @@ function Login() {
       setIsLoading(false);
 
       if (success) {
-        const stored =
-          typeof window !== "undefined" ? localStorage.getItem("user") : null;
-        const user = stored ? JSON.parse(stored) : null;
-        if (user?.role === "admin") {
-          navigate({ to: "/admin/products" });
+        // Use stored user from authService (cookie) to determine redirect
+        const storedUser = authService.getStoredUser()
+        if (storedUser?.role === 'admin') {
+          navigate({ to: '/admin/products' })
         } else {
           navigate({ to: "/" });
         }
