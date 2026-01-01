@@ -33,7 +33,16 @@ export class ApiClient {
     this.client.interceptors.request.use(
       (config: InternalAxiosRequestConfig) => {
         if (typeof window !== 'undefined') {
-          const token = localStorage.getItem('accessToken');
+          const getCookie = (name: string): string | null => {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) {
+              return parts.pop()?.split(';').shift() || null;
+            }
+            return null;
+          };
+          
+          const token = getCookie('accessToken');
           if (token) {
             config.headers.Authorization = `Bearer ${token}`;
           }
@@ -65,7 +74,7 @@ export class ApiClient {
         case 403:
           return "You do not have permission to perform this action.";
         case 404:
-          return "Requested resource not found.";
+          return `Resource not found: ${error.config?.url || 'unknown'}`;
         case 422:
           return data?.message || "Validation error.";
         case 500:

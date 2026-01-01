@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label'
 import { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { emailSchema } from '@/utils/auth.schema'
+import { authService } from '@/services/auth.service'
 
 export const Route = createFileRoute('/auth/login')({
   component: Login,
@@ -27,9 +28,9 @@ function Login() {
       setIsLoading(false)
       
       if (success) {
-        const stored = typeof window !== 'undefined' ? localStorage.getItem('user') : null
-        const user = stored ? JSON.parse(stored) : null
-        if (user?.role === 'admin') {
+        // Use stored user from authService (cookie) to determine redirect
+        const storedUser = authService.getStoredUser()
+        if (storedUser?.role === 'admin') {
           navigate({ to: '/admin/products' })
         } else {
           navigate({ to: '/' })
@@ -72,7 +73,7 @@ function Login() {
               validators={{
                 onChange: ({ value }) => {
                   const result = emailSchema.safeParse(value);
-                  return result.success ? undefined : result.error.errors[0].message;
+                  return result.success ? undefined : result.error.issues[0].message;
                 },
               }}
             >
