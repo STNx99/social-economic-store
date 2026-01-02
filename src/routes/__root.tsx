@@ -1,4 +1,4 @@
-import { HeadContent, Scripts, createRootRoute, createRootRouteWithContext, useLocation } from '@tanstack/react-router'
+import { HeadContent, Scripts, createRootRouteWithContext, useLocation } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 import { QueryClientProvider, type QueryClient } from '@tanstack/react-query'

@@ -27,16 +27,12 @@ export interface ApiErrorResponse {
 
 export interface PaginatedResponse<T> {
   success: true
-  data: {
-    items: T[]
-    meta: {
-      page: number
-      limit: number
-      total: number
-      totalPages: number
-      hasNext: boolean
-      hasPrev: boolean
-    }
+  data?: T[] 
+  pagination?: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
   }
   timestamp: string
 }

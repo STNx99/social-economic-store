@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import ProductCard from "./ProductCard";
 import SectionHeader from "./SectionHeader";
 import { Button } from "@/components/ui/button";
-import { flashSaleProducts } from "@/data/demo.products";
+import { useProducts } from "@/hooks/useProducts";
 
 function FlashSalesCountdown() {
   const [timeLeft, setTimeLeft] = useState<{
@@ -75,6 +75,28 @@ function FlashSalesCountdown() {
 }
 
 export default function FlashSalesSection() {
+  const { data: productsData, isLoading } = useProducts({ limit: 4 });
+  const products = productsData?.data || [];
+
+  if (isLoading) {
+    return (
+      <section className="mb-16">
+        <SectionHeader badge="Today's" />
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+          <div className="flex items-center gap-28">
+            <h2 className="text-4xl font-bold text-gray-900">Flash Sales</h2>
+            <FlashSalesCountdown />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-64 bg-gray-200 animate-pulse rounded-lg" />
+          ))}
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="mb-16">
       <SectionHeader badge="Today's" />
@@ -85,7 +107,7 @@ export default function FlashSalesSection() {
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {flashSaleProducts.map((product) => (
+        {products.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
       </div>

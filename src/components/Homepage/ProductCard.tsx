@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Heart, Star, ShoppingCart, Eye } from 'lucide-react'
-import { MockProduct } from '../../data/demo.products'
 import { Card } from '../ui/card'
 import { Button } from '../ui/button'
 import { cn } from '@/lib/utils'
@@ -8,9 +7,10 @@ import { useCart } from '@/contexts/CartContext'
 import { useToast } from '@/contexts/ToastContext'
 import { useAuth } from '@/contexts/AuthContext'
 import { MESSAGES } from '@/lib/shared/constants/messages'
+import type { Product } from '@/interfaces'
 
 interface ProductCardProps {
-  product: MockProduct
+  product: Product | any // Support both Product and MockProduct for transition
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
@@ -115,7 +115,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       <Card className="overflow-hidden hover:shadow-lg transition-shadow border-0 py-0 gap-0">
         <div className="aspect-square bg-gray-100 overflow-hidden relative">
           <img
-            src={product.image}
+            src={product.image || product.images?.[0] || '/placeholder.png'}
             alt={product.name}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
           />
@@ -149,7 +149,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
           <div className="flex items-center gap-1 mb-3">
             {renderStars()}
-            <span className="text-sm text-gray-500 ml-1">({product.reviewCount})</span>
+            <span className="text-sm text-gray-500 ml-1">({product.reviewCount || 0})</span>
           </div>
         </div>
       </Card>
