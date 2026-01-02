@@ -1,5 +1,4 @@
 import { PaymentMethod, PaymentStatus } from './payment'
-import { ShipmentStatus } from './shipment'
 
 export type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'shipping' | 'delivered' | 'cancelled' | 'returned'
 

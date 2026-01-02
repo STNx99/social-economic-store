@@ -1,11 +1,11 @@
 import ProductCard from "./ProductCard";
 import SectionHeader from "./SectionHeader";
-import { bestSellingProducts } from "@/data/demo.products";
+import type { Product } from "@/interfaces";
 
 interface ProductGridSectionProps {
   badge?: string;
   title: string;
-  products: typeof bestSellingProducts;
+  products: Product[] | any[];
   showViewAll?: boolean;
 }
 
