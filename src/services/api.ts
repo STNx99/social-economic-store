@@ -1,4 +1,7 @@
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig, AxiosResponse } from "axios";
+import Cookies from 'universal-cookie';
+
+const cookies = new Cookies(null, { path: '/' });
 
 export class ApiClient {
   private static instance: ApiClient;
@@ -32,11 +35,9 @@ export class ApiClient {
   private setupInterceptors() {
     this.client.interceptors.request.use(
       (config: InternalAxiosRequestConfig) => {
-        if (typeof window !== 'undefined') {
-          const token = localStorage.getItem('accessToken');
-          if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-          }
+        const token = cookies.get('accessToken');
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
       },
@@ -65,7 +66,7 @@ export class ApiClient {
         case 403:
           return "You do not have permission to perform this action.";
         case 404:
-          return "Requested resource not found.";
+          return `Resource not found: ${error.config?.url || 'unknown'}`;
         case 422:
           return data?.message || "Validation error.";
         case 500:

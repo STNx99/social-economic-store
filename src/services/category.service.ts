@@ -1,16 +1,16 @@
 import { apiClient } from './api';
 import { 
   Category,
+  CategoryResponse,
   CreateCategoryRequest,
   UpdateCategoryRequest,
   ApiResponse, 
-  PaginatedResponse 
 } from '@/interfaces';
 
 class CategoryService {
 
-  async getCategories(): Promise<PaginatedResponse<Category>> {
-    return await apiClient.get<PaginatedResponse<Category>>('/categories');
+  async getCategories(): Promise<CategoryResponse> {
+    return await apiClient.get<CategoryResponse>('/categories');
   }
 
 

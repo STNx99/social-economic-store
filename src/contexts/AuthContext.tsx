@@ -9,6 +9,8 @@ interface AuthContextType {
   logout: () => void
   isAuthenticated: boolean
   isAdmin: boolean
+  isCustomer: boolean
+  canCreateProduct: boolean
   error: string | null
 }
 
@@ -75,6 +77,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     logout,
     isAuthenticated: !!user,
     isAdmin: user?.role === 'admin',
+    isCustomer: user?.role === 'customer',
+    canCreateProduct: user?.role === 'admin' || user?.role === 'customer',
     error,
   }
 

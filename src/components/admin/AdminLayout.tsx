@@ -1,18 +1,30 @@
-import { SidebarProvider, Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarFooter, SidebarTrigger } from '@/components/ui/sidebar'
-import { Package, Users, Headset, LogOut } from 'lucide-react'
-import { Link } from '@tanstack/react-router'
-import { useAuth } from '@/contexts/AuthContext'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
+import {
+  SidebarProvider,
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarFooter,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { Package, Users, Headset, LogOut } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { useAuth } from "@/contexts/AuthContext";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 
 const menuItems = [
-  { title: 'Products', icon: Package, path: '/admin/products' },
-  { title: 'Customers', icon: Users, path: '/admin/customers' },
-  { title: 'Support', icon: Headset, path: '/admin/support' },
-]
+  { title: "Products", icon: Package, path: "/admin/products" },
+  { title: "Customers", icon: Users, path: "/admin/customers" },
+  { title: "Support", icon: Headset, path: "/admin/support" },
+];
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { user, logout } = useAuth()
+  const { user, logout } = useAuth();
 
   return (
     <SidebarProvider>
@@ -40,7 +52,9 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           <SidebarFooter>
             <div className="flex items-center gap-3 p-2">
               <Avatar>
-                <AvatarFallback>{user?.name?.charAt(0).toUpperCase()}</AvatarFallback>
+                <AvatarFallback>
+                  {user?.name?.charAt(0).toUpperCase()}
+                </AvatarFallback>
               </Avatar>
               <div className="flex-1">
                 <p className="text-sm font-medium">{user?.name}</p>
@@ -60,5 +74,5 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         </div>
       </div>
     </SidebarProvider>
-  )
+  );
 }

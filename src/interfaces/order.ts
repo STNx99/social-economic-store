@@ -1,10 +1,6 @@
+import { PaymentMethod, PaymentStatus } from './payment'
+
 export type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'shipping' | 'delivered' | 'cancelled' | 'returned'
-
-export type PaymentMethod = 'cod' | 'bank_transfer' | 'e_wallet'
-
-export type PaymentStatus = 'pending' | 'paid' | 'failed'
-
-export type ShipmentStatus = 'pending' | 'picked_up' | 'in_transit' | 'out_for_delivery' | 'delivered' | 'failed'
 
 export interface OrderItem {
   id: string
@@ -72,10 +68,4 @@ export interface OrderTimeline {
   timestamp: string
   location?: string
   note?: string
-}
-
-export interface Shipment {
-  trackingNumber: string
-  carrier: string
-  status: ShipmentStatus
 }

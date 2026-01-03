@@ -15,18 +15,27 @@ class InventoryService {
   }
 
   async getInventoryByVariant(variantId: string): Promise<ApiResponse<InventoryItem>> {
-    return await apiClient.get<ApiResponse<InventoryItem>>(`/inventory/${variantId}`);
+    return await apiClient.get<ApiResponse<InventoryItem>>(`/inventory/variants/${variantId}`);
   }
 
-  async getMovements(variantId: string): Promise<PaginatedResponse<InventoryMovement>> {
-    return await apiClient.get<PaginatedResponse<InventoryMovement>>(`/inventory/${variantId}/movements`);
+  async getInventoryByProduct(productId: string): Promise<ApiResponse<InventoryItem[]>> {
+    return await apiClient.get<ApiResponse<InventoryItem[]>>(`/inventory/products/${productId}`);
+  }
+
+  async getMovements(variantId: string): Promise<ApiResponse<InventoryMovement[]>> {
+    return await apiClient.get<ApiResponse<InventoryMovement[]>>(`/inventory/variants/${variantId}/movements`);
   }
 
   async adjustInventory(variantId: string, data: AdjustInventoryRequest): Promise<ApiResponse<InventoryItem>> {
     return await apiClient.post<ApiResponse<InventoryItem>, AdjustInventoryRequest>(
-      `/inventory/${variantId}/adjust`,
+      `/inventory/variants/${variantId}/adjust`,
       data
     );
+  }
+
+  async getSlowMovingItems(daysThreshold?: number): Promise<ApiResponse<import('@/interfaces').SlowMovingItem[]>> {
+    const params = daysThreshold ? { daysThreshold } : undefined;
+    return await apiClient.get<ApiResponse<import('@/interfaces').SlowMovingItem[]>>('/inventory/slow-moving', params);
   }
 }
 

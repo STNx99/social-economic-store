@@ -5,42 +5,43 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
-import { emailSchema } from '@/utils/auth.schema'
+import { authService } from '@/services/auth.service'
+import { emailSchema } from '@/lib/schema/auth.schema'
 
-export const Route = createFileRoute('/auth/login')({
+export const Route = createFileRoute("/auth/login")({
   component: Login,
-})
+});
 
 function Login() {
-  const navigate = useNavigate()
-  const { login, error: authError } = useAuth()
-  const [isLoading, setIsLoading] = useState(false)
+  const navigate = useNavigate();
+  const { login, error: authError } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm({
     defaultValues: {
-      email: '',
-      password: '',
+      email: "",
+      password: "",
     },
     onSubmit: async ({ value }) => {
-      setIsLoading(true)
-      const success = await login(value.email, value.password)
-      setIsLoading(false)
-      
+      setIsLoading(true);
+      const success = await login(value.email, value.password);
+      setIsLoading(false);
+
       if (success) {
-        const stored = typeof window !== 'undefined' ? localStorage.getItem('user') : null
-        const user = stored ? JSON.parse(stored) : null
-        if (user?.role === 'admin') {
+        // Use stored user from authService (cookie) to determine redirect
+        const storedUser = authService.getStoredUser()
+        if (storedUser?.role === 'admin') {
           navigate({ to: '/admin/products' })
         } else {
-          navigate({ to: '/' })
+          navigate({ to: "/" });
         }
       }
     },
-  })
+  });
 
   return (
     <div className="min-h-[calc(100vh-80px)] flex">
-       <div className="hidden lg:flex lg:w-1/2 items-center justify-center p-8">
+      <div className="hidden lg:flex lg:w-1/2 items-center justify-center p-8">
         <div className="w-full max-w-md aspect-square flex items-center justify-center">
           <img
             src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=400&h=400&fit=crop"
@@ -61,9 +62,9 @@ function Login() {
 
           <form
             onSubmit={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              form.handleSubmit()
+              e.preventDefault();
+              e.stopPropagation();
+              form.handleSubmit();
             }}
             className="space-y-6"
           >
@@ -72,7 +73,7 @@ function Login() {
               validators={{
                 onChange: ({ value }) => {
                   const result = emailSchema.safeParse(value);
-                  return result.success ? undefined : result.error.errors[0].message;
+                  return result.success ? undefined : result.error.issues[0].message;
                 },
               }}
             >
@@ -105,7 +106,7 @@ function Login() {
               validators={{
                 onChange: ({ value }) =>
                   value.length < 6
-                    ? 'Password must be at least 6 characters'
+                    ? "Password must be at least 6 characters"
                     : undefined,
               }}
             >
@@ -133,16 +134,14 @@ function Login() {
               )}
             </form.Field>
 
-            {authError && (
-              <p className="text-sm text-red-600">{authError}</p>
-            )}
+            {authError && <p className="text-sm text-red-600">{authError}</p>}
             <div className="flex items-center justify-between gap-4">
               <Button
                 type="submit"
                 className="bg-red-500 hover:bg-red-600 text-white px-12"
                 disabled={isLoading}
               >
-                {isLoading ? 'Logging in...' : 'Log In'}
+                {isLoading ? "Logging in..." : "Log In"}
               </Button>
               <a
                 href="#forgot-password"
@@ -155,5 +154,5 @@ function Login() {
         </div>
       </div>
     </div>
-  )
+  );
 }

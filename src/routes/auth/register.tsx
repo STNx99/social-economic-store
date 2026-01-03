@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuth } from '@/contexts/AuthContext'
 import { useState } from 'react'
-import { nameSchema, emailSchema, passwordSchema } from '@/utils/auth.schema'
+import { nameSchema, emailSchema, passwordSchema } from '@/lib/schema/auth.schema'
 
 export const Route = createFileRoute('/auth/register')({
   component: Register,
@@ -73,7 +73,7 @@ function Register() {
               validators={{
                 onChange: ({ value }) => {
                   const result = nameSchema.safeParse(value);
-                  return result.success ? undefined : result.error.errors[0].message;
+                  return result.success ? undefined : result.error.issues[0].message;
                 },
               }}
             >
@@ -105,7 +105,7 @@ function Register() {
               validators={{
                 onChange: ({ value }) => {
                   const result = emailSchema.safeParse(value);
-                  return result.success ? undefined : result.error.errors[0].message;
+                  return result.success ? undefined : result.error.issues[0].message;
                 },
               }}
             >
@@ -138,7 +138,7 @@ function Register() {
               validators={{
                 onChange: ({ value }) => {
                   const result = passwordSchema.safeParse(value);
-                  return result.success ? undefined : result.error.errors[0].message;
+                  return result.success ? undefined : result.error.issues[0].message;
                 },
               }}
             >

@@ -17,7 +17,7 @@ import { Badge } from "./ui/badge";
 import { useState } from "react";
 
 export default function Header() {
-  const { user, logout, isAuthenticated, isAdmin } = useAuth();
+  const { user, logout, isAuthenticated, isAdmin, canCreateProduct } = useAuth();
   const { getItemCount } = useCart();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
@@ -41,6 +41,17 @@ export default function Header() {
             >
               Home
             </Link>
+            {canCreateProduct && (
+              <Link
+                to="/sell"
+                className="text-gray-700 hover:text-gray-900 transition-colors"
+                activeProps={{
+                  className: "text-gray-900 underline underline-offset-4",
+                }}
+              >
+                Sell
+              </Link>
+            )}
             <Link
               to="/"
               hash="#contact"
@@ -124,6 +135,13 @@ export default function Header() {
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
+                    {canCreateProduct && (
+                      <DropdownMenuItem asChild>
+                        <Link to="/sell" className="cursor-pointer">
+                          Sell Product
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
                     {isAdmin && (
                       <>
                         <DropdownMenuItem asChild>
