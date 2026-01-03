@@ -96,8 +96,8 @@ export class ApiClient {
     return response.data;
   }
 
-  async delete<T>(url: string): Promise<T> {
-    const response = await this.client.delete<T>(url);
+  async delete<T>(url: string, config?: { data?: unknown }): Promise<T> {
+    const response = await this.client.delete<T>(url, config);
     return response.data;
   }
 

@@ -18,6 +18,13 @@ class OrderService {
     );
   }
 
+  async checkout(data: { cartId: string; shippingAddress: string; paymentMethod: string; notes?: string }): Promise<ApiResponse<Order>> {
+    return await apiClient.post<ApiResponse<Order>, any>(
+      '/orders/checkout',
+      data
+    );
+  }
+
 
   async getMyOrders(params?: OrderQueryParams): Promise<PaginatedResponse<Order>> {
     return await apiClient.get<PaginatedResponse<Order>>('/orders/my-orders', params);

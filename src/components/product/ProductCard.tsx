@@ -2,7 +2,7 @@ import { ShoppingCart, Eye } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useState } from 'react'
-import { useCart } from '@/contexts/CartContext'
+import { useCart } from '@/hooks/useCart'
 import { useToast } from '@/contexts/ToastContext'
 import { useAuth } from '@/contexts/AuthContext'
 import type { MockProduct } from '@/data/demo.products'
@@ -75,7 +75,6 @@ export function ProductCard({
         reviewCount: reviewCount || 0,
       }
       
-      addToCart(productToAdd, 1)
       
       showToast({
         title: 'Đã thêm vào giỏ hàng',

@@ -1,18 +1,7 @@
 import { useState } from 'react'
-import { useCart } from '@/contexts/CartContext'
-import { PaymentMethod } from '@/interfaces'
-
-export interface CheckoutFormData {
-  firstName: string
-  companyName?: string
-  streetAddress: string
-  apartment?: string
-  townCity: string
-  phoneNumber: string
-  emailAddress: string
-  paymentMethod: PaymentMethod
-  saveInfo?: boolean
-}
+import { useCart } from '@/hooks/useCart'
+import { CheckoutFormValues } from '@/lib/schema/checkout.schema'
+import { orderService } from '@/services/order.service'
 
 export interface CheckoutResult {
   orderNumber: string
@@ -20,48 +9,62 @@ export interface CheckoutResult {
 }
 
 export function useCheckout() {
-  const { items, getTotalPrice, clearCart } = useCart()
+  const { cart, getTotalPrice, clearCart } = useCart()
+  const items = cart?.items ?? []
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const validateForm = (formData: CheckoutFormData): string | null => {
-    if (items.length === 0) {
-      return 'Cart is empty'
-    }
-    if (!formData.firstName) return 'First name is required'
-    if (!formData.streetAddress) return 'Street address is required'
-    if (!formData.townCity) return 'Town/City is required'
-    if (!formData.phoneNumber) return 'Phone number is required'
-    if (!formData.emailAddress) return 'Email address is required'
-    return null
-  }
-
   const processCheckout = async (
-    formData: CheckoutFormData
+    formData: CheckoutFormValues
   ): Promise<CheckoutResult> => {
-    // Validate
-    const validationError = validateForm(formData)
-    if (validationError) {
-      setError(validationError)
-      throw new Error(validationError)
+    if (items.length === 0) {
+      const errorMsg = 'Cart is empty'
+      setError(errorMsg)
+      throw new Error(errorMsg)
     }
 
     setIsProcessing(true)
     setError(null)
 
-    // Mock checkout process - simulate API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const mockOrderNumber = `ORD-${Date.now()}`
-        setIsProcessing(false)
-        clearCart()
-        
-        resolve({
-          orderNumber: mockOrderNumber,
-          success: true,
-        })
-      }, 2000)
-    })
+    try {
+      if (!cart?.id) {
+        throw new Error('Cart ID not found')
+      }
+
+      const shippingAddress = [
+        formData.firstName,
+        formData.phoneNumber,
+        `${formData.streetAddress}${formData.apartment ? `, ${formData.apartment}` : ''}`,
+        formData.townCity,
+        formData.emailAddress
+      ].filter(Boolean).join(' | ')
+
+      const orderResponse = await orderService.checkout({
+        cartId: cart.id,
+        shippingAddress,
+        paymentMethod: formData.paymentMethod,
+        notes: formData.saveInfo ? 'Save info requested' : undefined
+      })
+
+      if (!orderResponse.success || !orderResponse.data) {
+        throw new Error(orderResponse.message || 'Failed to create order')
+      }
+
+      const order = orderResponse.data
+
+      clearCart()
+
+      setIsProcessing(false)
+      return {
+        orderNumber: order.orderNumber || order.id.substring(0, 8).toUpperCase(),
+        success: true,
+      }
+    } catch (err) {
+      setIsProcessing(false)
+      const errorMessage = err instanceof Error ? err.message : 'Checkout failed'
+      setError(errorMessage)
+      throw err
+    }
   }
 
   return {

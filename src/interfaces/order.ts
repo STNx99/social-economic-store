@@ -1,41 +1,29 @@
-import { PaymentMethod, PaymentStatus } from './payment'
+import { PaymentMethod } from './payment'
 
-export type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'shipping' | 'delivered' | 'cancelled' | 'returned'
+export type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded'
+
+export type OrderPaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded'
 
 export interface OrderItem {
-  id: string
-  orderId: string
-  variantId: string
   productId: string
-  productName: string
-  variantName: string
-  quantity: number
+  variantId?: string
+  name: string
   price: number
-  imageUrl: string
-}
-
-export interface ShippingAddress {
-  fullName: string
-  phone: string
-  address: string
-  ward: string
-  district: string
-  province: string
+  quantity: number
 }
 
 export interface Order {
   id: string
-  orderNumber: string
-  userId: string
-  status: OrderStatus
+  orderNumber?: string
+  customerId: string
+  sellerId: string
+  cartId: string
   items: OrderItem[]
-  subtotal: number
-  shippingFee: number
-  discount: number
-  total: number
-  shippingAddress: ShippingAddress
-  paymentMethod: PaymentMethod
-  paymentStatus: PaymentStatus
+  totalAmount: number
+  status: OrderStatus
+  paymentStatus: OrderPaymentStatus
+  shippingAddress: string
+  notes?: string
   createdAt: string
   updatedAt: string
 }
