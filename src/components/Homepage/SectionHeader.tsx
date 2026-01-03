@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "@tanstack/react-router";
 
 interface SectionHeaderProps {
   badge?: string;
@@ -12,6 +13,8 @@ export default function SectionHeader({
   title,
   showViewAll = false,
 }: SectionHeaderProps) {
+  const navigate = useNavigate();
+
   return (
     <>
       {badge && (
@@ -29,7 +32,10 @@ export default function SectionHeader({
           <h2 className="text-4xl font-bold text-gray-900">{title}</h2>
           {showViewAll && (
             <div className="flex justify-end">
-              <Button className="bg-[#DB4444] hover:bg-[#DB4444]/90 text-white h-14 px-12 rounded font-semibold">
+              <Button 
+                className="bg-[#DB4444] hover:bg-[#DB4444]/90 text-white h-14 px-12 rounded font-semibold"
+                onClick={() => navigate({ to: "/search", search: { q: "" } })}
+              >
                 View All
               </Button>
             </div>

@@ -1,8 +1,11 @@
 import { apiClient } from './api';
 import {
   Product,
+  ProductVariant,
   CreateProductRequest,
   UpdateProductRequest,
+  CreateVariantRequest,
+  UpdateVariantRequest,
   ApiResponse,
   PaginatedResponse,
   ProductQueryParams,
@@ -14,6 +17,13 @@ class ProductService {
    */
   async getProducts(params?: ProductQueryParams): Promise<PaginatedResponse<Product>> {
     return await apiClient.get<PaginatedResponse<Product>>('/products', params);
+  }
+
+  /**
+   * Fetch products belonging to the current user (seller)
+   */
+  async getMyProducts(params?: ProductQueryParams): Promise<PaginatedResponse<Product>> {
+    return await apiClient.get<PaginatedResponse<Product>>('/products/user', params);
   }
 
   async getProduct(id: string): Promise<ApiResponse<Product>> {
@@ -90,6 +100,35 @@ class ProductService {
       `/products/${id}/approve`,
       {}
     );
+  }
+
+  /**
+   * Variants
+   */
+  async getVariants(productId: string): Promise<ApiResponse<ProductVariant[]>> {
+    return await apiClient.get<ApiResponse<ProductVariant[]>>('/products/variants', { productId });
+  }
+
+  async getVariant(id: string): Promise<ApiResponse<ProductVariant>> {
+    return await apiClient.get<ApiResponse<ProductVariant>>(`/products/variants/${id}`);
+  }
+
+  async createVariant(productId: string, data: CreateVariantRequest): Promise<ApiResponse<ProductVariant>> {
+    return await apiClient.post<ApiResponse<ProductVariant>, CreateVariantRequest & { productId: string }>(
+      '/products/variants',
+      { ...data, productId }
+    );
+  }
+
+  async updateVariant(id: string, data: UpdateVariantRequest): Promise<ApiResponse<ProductVariant>> {
+    return await apiClient.put<ApiResponse<ProductVariant>, UpdateVariantRequest>(
+      `/products/variants/${id}`,
+      data
+    );
+  }
+
+  async deleteVariant(id: string): Promise<ApiResponse<void>> {
+    return await apiClient.delete<ApiResponse<void>>(`/products/variants/${id}`);
   }
 }
 

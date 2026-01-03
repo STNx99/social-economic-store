@@ -3,6 +3,7 @@ import {
   SalesRevenueReport,
   ApiResponse,
   ReportQueryParams,
+  DashboardData,
 } from '@/interfaces';
 
 class ReportService {
@@ -12,8 +13,8 @@ class ReportService {
   }
 
 
-  async getDashboard(params?: ReportQueryParams): Promise<ApiResponse<any>> {
-    return await apiClient.get<ApiResponse<any>>('/report/dashboard', params);
+  async getDashboard(params?: ReportQueryParams): Promise<ApiResponse<DashboardData>> {
+    return await apiClient.get<ApiResponse<DashboardData>>('/report/dashboard', params);
   }
 }
 

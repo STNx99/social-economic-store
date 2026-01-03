@@ -1,8 +1,21 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { CreateProductForm } from '@/components/product/CreateProductForm'
 import { useAuth } from '@/contexts/AuthContext'
-import { Button } from '@/components/ui/button'
 import { useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import {
+  SidebarProvider,
+  SidebarTrigger,
+  SidebarInset,
+} from '@/components/ui/sidebar'
+import { Separator } from '@/components/ui/separator'
+import { SellerProvider, useSeller } from '@/contexts/SellerContext'
+import { SellerSidebar } from '@/components/sell/SellerSidebar'
+import { SellerDashboard } from '@/components/sell/SellerDashboard'
+import { SellerProducts } from '@/components/sell/SellerProducts'
+import { SellerOrders } from '@/components/sell/SellerOrders'
+import { SellerInventory } from '@/components/sell/SellerInventory'
+import { ProductCreationForm } from '@/components/sell/ProductCreationForm'
+import { VariantManagement } from '@/components/sell/VariantManagement'
 
 export const Route = createFileRoute('/sell')({
   component: SellPage,
@@ -21,13 +34,11 @@ function SellPage() {
     }
   }, [isAuthenticated, navigate])
 
-  if (!isAuthenticated) {
-    return null
-  }
+  if (!isAuthenticated) return null
 
   if (!canCreateProduct) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[70vh] space-y-6 px-4 text-center">
+      <div className="flex flex-col items-center justify-center min-h-screen space-y-6 px-4 text-center">
         <div className="space-y-2">
           <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-destructive">
             Access Restricted
@@ -47,28 +58,37 @@ function SellPage() {
   }
 
   return (
-    <div className="container max-w-5xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-      <div className="flex flex-col items-center mb-10 text-center">
-        <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl mb-4">
-          List Your Product
-        </h1>
-        <p className="text-lg text-muted-foreground max-w-2xl">
-          Fill out the form below to add your product to our marketplace. 
-          Make sure to provide clear images and a detailed description to attract more buyers.
-        </p>
+    <SellerProvider>
+      <SellPageContent />
+    </SellerProvider>
+  )
+}
+
+function SellPageContent() {
+  const { activeView } = useSeller()
+
+  return (
+    <SidebarProvider>
+      <div className="flex h-screen w-full bg-muted/10">
+        <SellerSidebar />
+        <SidebarInset className="flex-1 overflow-hidden">
+          <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-background px-4">
+            <SidebarTrigger className="-ml-1" />
+            <Separator orientation="vertical" className="mr-2 h-4" />
+            <h1 className="text-lg font-semibold capitalize">
+              {activeView.replace('-', ' ')}
+            </h1>
+          </header>
+          <main className="flex-1 overflow-y-auto p-4 md:p-6">
+            {activeView === 'dashboard' && <SellerDashboard />}
+            {activeView === 'products' && <SellerProducts />}
+            {activeView === 'orders' && <SellerOrders />}
+            {activeView === 'inventory' && <SellerInventory />}
+            {activeView === 'create-product' && <ProductCreationForm />}
+            {activeView === 'manage-variants' && <VariantManagement />}
+          </main>
+        </SidebarInset>
       </div>
-      
-      <div className="bg-background rounded-xl shadow-lg border p-1">
-        <CreateProductForm 
-          onSuccess={() => {
-            // In a real app, we might redirect to the new product's page or a "My Products" page
-            navigate({ to: '/' })
-          }}
-          onCancel={() => {
-            navigate({ to: '/' })
-          }}
-        />
-      </div>
-    </div>
+    </SidebarProvider>
   )
 }

@@ -3,6 +3,7 @@ import ProductCard from "./ProductCard";
 import SectionHeader from "./SectionHeader";
 import { Button } from "@/components/ui/button";
 import { useProducts } from "@/hooks/useProducts";
+import { useNavigate } from "@tanstack/react-router";
 
 function FlashSalesCountdown() {
   const [timeLeft, setTimeLeft] = useState<{
@@ -75,6 +76,7 @@ function FlashSalesCountdown() {
 }
 
 export default function FlashSalesSection() {
+  const navigate = useNavigate();
   const { data: productsData, isLoading } = useProducts({ limit: 4 });
   const products = productsData?.data || [];
 
@@ -90,7 +92,10 @@ export default function FlashSalesSection() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-64 bg-gray-200 animate-pulse rounded-lg" />
+            <div
+              key={i}
+              className="h-64 bg-gray-200 animate-pulse rounded-lg"
+            />
           ))}
         </div>
       </section>
@@ -112,7 +117,10 @@ export default function FlashSalesSection() {
         ))}
       </div>
       <div className="mt-6 flex justify-center">
-        <Button className="bg-red-500 hover:bg-red-600 text-white py-3 px-8 rounded-lg font-semibold">
+        <Button
+          className="bg-red-500 hover:bg-red-600 text-white py-3 px-8 rounded-lg font-semibold"
+          onClick={() => navigate({ to: "/search", search: { q: "" } })}
+        >
           View All Products
         </Button>
       </div>

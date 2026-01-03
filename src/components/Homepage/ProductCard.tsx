@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { Heart, Star, ShoppingCart, Eye } from 'lucide-react'
 import { Card } from '../ui/card'
 import { Button } from '../ui/button'
@@ -19,12 +20,12 @@ export default function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart()
   const { showToast } = useToast()
   const { isAuthenticated } = useAuth()
+  const navigate = useNavigate()
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation()
     e.preventDefault()
     
-    // Kiểm tra đăng nhập
     if (!isAuthenticated) {
       showToast({
         title: 'Vui lòng đăng nhập',
@@ -32,7 +33,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         variant: 'error',
         duration: 3000,
       })
-      window.location.href = '/auth/login'
+      navigate({ to: '/auth/login' })
       return
     }
     
@@ -55,11 +56,11 @@ export default function ProductCard({ product }: ProductCardProps) {
         variant: 'error',
         duration: 3000,
       })
-      window.location.href = '/auth/login'
+      navigate({ to: '/auth/login' })
       return
     }
     
-    window.location.href = `/products/${product.id}`
+    navigate({ to: '/products/$productId', params: { productId: product.id } })
   }
 
   const renderStars = () => {
@@ -127,12 +128,23 @@ export default function ProductCard({ product }: ProductCardProps) {
             }`}
           >
             <Button
+              asChild
               size="lg"
               className="bg-white text-gray-900 hover:bg-gray-100 shadow-lg"
-              onClick={handleViewDetails}
             >
-              <Eye className="mr-2 h-5 w-5" />
-              Xem chi tiết sản phẩm
+              <Link
+                to="/products/$productId"
+                params={{ productId: product.id }}
+                onClick={(e) => {
+                  if (!isAuthenticated) {
+                    e.preventDefault()
+                    handleViewDetails()
+                  }
+                }}
+              >
+                <Eye className="mr-2 h-5 w-5" />
+                Xem chi tiết sản phẩm
+              </Link>
             </Button>
           </div>
         </div>

@@ -9,6 +9,7 @@ export type ProductStatus =
 
 export interface Product {
   id: string;
+  sellerId: string;
   name: string;
   description?: string;
   price: number;
@@ -64,6 +65,7 @@ export interface CreateProductRequest {
   images?: string[];
   category?: string;
   status?: ProductStatus;
+  variants?: CreateVariantRequest[];
 }
 
 export interface UpdateProductRequest {
@@ -89,6 +91,7 @@ export interface UpdateCategoryRequest {
 }
 
 export interface CreateVariantRequest {
+  productId?: string;
   sku: string;
   name: string;
   price: number;
