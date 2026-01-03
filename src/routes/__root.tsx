@@ -58,15 +58,15 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body>
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
-            <ChatProvider>
-              <CartProvider>
-                <ToastProvider>
+            <ToastProvider>
+              <ChatProvider>
+                <CartProvider>
                   {!hideLayout && <Header />}
                   {children}
                   {!hideLayout && <ChatBubble />}
-                </ToastProvider>
-              </CartProvider>
-            </ChatProvider>
+                </CartProvider>
+              </ChatProvider>
+            </ToastProvider>
           </AuthProvider>
           <TanStackDevtools
             config={{

@@ -4,25 +4,26 @@ import { Heart, Star, ShoppingCart, Eye } from 'lucide-react'
 import { Card } from '../ui/card'
 import { Button } from '../ui/button'
 import { cn } from '@/lib/utils'
-import { useCart } from '@/contexts/CartContext'
+import { useCart } from '@/hooks/useCart'
 import { useToast } from '@/contexts/ToastContext'
 import { useAuth } from '@/contexts/AuthContext'
 import { MESSAGES } from '@/lib/shared/constants/messages'
 import type { Product } from '@/interfaces'
 
 interface ProductCardProps {
-  product: Product | any // Support both Product and MockProduct for transition
+  product: Product | any 
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
   const [isFavorite, setIsFavorite] = useState<boolean>(false)
   const [isHovered, setIsHovered] = useState<boolean>(false)
+  const [isAddingToCart, setIsAddingToCart] = useState<boolean>(false)
   const { addToCart } = useCart()
   const { showToast } = useToast()
   const { isAuthenticated } = useAuth()
   const navigate = useNavigate()
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.stopPropagation()
     e.preventDefault()
     
@@ -37,14 +38,32 @@ export default function ProductCard({ product }: ProductCardProps) {
       return
     }
     
-    addToCart(product, 1)
+    if (isAddingToCart) return
+
+    setIsAddingToCart(true)
     
-    showToast({
-      title: MESSAGES.cart.addedToCart,
-      variant: 'success',
-      duration: 2000,
-      showOverlay: true,
-    })
+    try {
+      await addToCart({
+        productId: product.id,
+        quantity: 1
+      })
+      
+      showToast({
+        title: MESSAGES.cart.addedToCart,
+        variant: 'success',
+        duration: 2000,
+        showOverlay: true,
+      })
+    } catch (error: any) {
+      showToast({
+        title: 'Lỗi',
+        description: error.message || 'Không thể thêm vào giỏ hàng',
+        variant: 'error',
+        duration: 3000,
+      })
+    } finally {
+      setIsAddingToCart(false)
+    }
   }
 
   const handleViewDetails = () => {
@@ -109,8 +128,13 @@ export default function ProductCard({ product }: ProductCardProps) {
         size="icon"
         className="absolute top-2 right-2 rounded-full bg-white text-gray-900 hover:bg-red-500 hover:text-white shadow-md transition-all duration-300 z-10"
         onClick={handleAddToCart}
+        disabled={isAddingToCart}
       >
-        <ShoppingCart size={20} />
+        {isAddingToCart ? (
+          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900"></div>
+        ) : (
+          <ShoppingCart size={20} />
+        )}
       </Button>
 
       <Card className="overflow-hidden hover:shadow-lg transition-shadow border-0 py-0 gap-0">

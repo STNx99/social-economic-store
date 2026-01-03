@@ -90,19 +90,20 @@ export default function Header() {
               >
                 <Heart size={24} />
               </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-gray-700 hover:text-gray-900 transition-colors relative"
-                title="Cart (UI removed - logic available via useCart hook)"
-              >
-                <ShoppingCart size={24} />
-                {getItemCount() > 0 && (
-                  <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-red-500 text-white text-xs">
-                    {getItemCount() > 99 ? "99+" : getItemCount()}
-                  </Badge>
-                )}
-              </Button>
+              <Link to="/cart">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-gray-700 hover:text-gray-900 transition-colors relative"
+                >
+                  <ShoppingCart size={24} />
+                  {getItemCount() > 0 && (
+                    <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-red-500 text-white text-xs">
+                      {getItemCount() > 99 ? "99+" : getItemCount()}
+                    </Badge>
+                  )}
+                </Button>
+              </Link>
 
               {isAuthenticated ? (
                 <DropdownMenu>

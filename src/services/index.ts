@@ -10,4 +10,5 @@ export { shipmentService } from './shipment.service';
 export { inventoryService } from './inventory.service';
 export { promotionService } from './promotion.service';
 export { reviewService } from './review.service';
+export { cartService } from './cart.service';
 export { apiClient } from './api';
