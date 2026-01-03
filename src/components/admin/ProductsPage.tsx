@@ -10,27 +10,60 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
-import { Plus, Search, Edit, Trash2, Eye } from 'lucide-react'
-import { useState } from 'react'
-import { mockProducts } from '@/data/mock/products'
+import { Plus, Search, Edit, Trash2, Eye, Loader2 } from 'lucide-react'
+import { useState, useMemo, useEffect, useDeferredValue } from 'react'
+import { useProducts } from '@/hooks/useProducts'
+import { useToast } from '@/contexts/ToastContext'
 
 export function ProductsPage() {
   const [searchQuery, setSearchQuery] = useState('')
-  const [products] = useState(mockProducts)
-
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (product.category?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
+  
+  const deferredSearchQuery = useDeferredValue(searchQuery)
+  
+  const { showToast } = useToast()
+  const { data: productsData, isLoading, error } = useProducts()
+  
+  const products = productsData?.data || []
+  
+  const filteredProducts = useMemo(() => 
+    products.filter(product =>
+      product.name.toLowerCase().includes(deferredSearchQuery.toLowerCase()) ||
+      (product.category?.toLowerCase().includes(deferredSearchQuery.toLowerCase()) ?? false)
+    ),
+    [products, deferredSearchQuery]
   )
+  
+  const statistics = useMemo(() => {
+    const lowStockCount = products.filter(p => {
+      const total = p.variants 
+        ? p.variants.reduce((sum, v) => sum + v.stock, 0)
+        : p.stock
+      return total > 0 && total <= 20
+    }).length
+    
+    const outOfStockCount = products.filter(p => {
+      const total = p.variants 
+        ? p.variants.reduce((sum, v) => sum + v.stock, 0)
+        : p.stock
+      return total === 0
+    }).length
+    
+    return {
+      total: products.length,
+      lowStock: lowStockCount,
+      outOfStock: outOfStockCount
+    }
+  }, [products])
+  
+  useEffect(() => {
+    if (error) {
+      showToast({
+        title: 'Lỗi',
+        description: 'Không thể tải danh sách sản phẩm',
+        variant: 'error',
+      })
+    }
+  }, [error, showToast])
 
   return (
     <div className="space-y-6">
@@ -41,44 +74,10 @@ export function ProductsPage() {
               Quản lý danh sách sản phẩm, giá cả và tồn kho
             </p>
           </div>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Thêm sản phẩm
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Thêm sản phẩm mới</DialogTitle>
-                <DialogDescription>
-                  Nhập thông tin sản phẩm để thêm vào danh sách
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Tên sản phẩm</label>
-                  <Input placeholder="Nhập tên sản phẩm" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Danh mục</label>
-                  <Input placeholder="Chọn danh mục" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Giá</label>
-                  <Input type="number" placeholder="0" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Mô tả</label>
-                  <Input placeholder="Mô tả sản phẩm" />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline">Hủy</Button>
-                <Button>Thêm sản phẩm</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            Thêm sản phẩm
+          </Button>
         </div>
 
         <Card>
@@ -87,7 +86,7 @@ export function ProductsPage() {
               <div>
                 <CardTitle>Danh sách sản phẩm</CardTitle>
                 <CardDescription>
-                  Tổng cộng {filteredProducts.length} sản phẩm
+                  {isLoading ? 'Đang tải...' : `Tổng cộng ${filteredProducts.length} sản phẩm${searchQuery !== deferredSearchQuery ? ' (đang tìm kiếm...)' : ''}`}
                 </CardDescription>
               </div>
               <div className="relative w-64">
@@ -103,7 +102,16 @@ export function ProductsPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <Table>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : filteredProducts.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                {searchQuery ? 'Không tìm thấy sản phẩm nào' : 'Chưa có sản phẩm nào'}
+              </div>
+            ) : (
+              <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Hình ảnh</TableHead>
@@ -153,13 +161,25 @@ export function ProductsPage() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          <Button variant="ghost" size="icon">
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            title="Xem chi tiết"
+                          >
                             <Eye className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon">
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            title="Chỉnh sửa"
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon">
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            title="Xóa"
+                          >
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
                         </div>
@@ -169,6 +189,7 @@ export function ProductsPage() {
                 })}
               </TableBody>
             </Table>
+            )}
           </CardContent>
         </Card>
 
@@ -178,7 +199,9 @@ export function ProductsPage() {
               <CardTitle>Tổng sản phẩm</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{products.length}</div>
+              <div className="text-3xl font-bold">
+                {isLoading ? <Loader2 className="h-8 w-8 animate-spin" /> : statistics.total}
+              </div>
               <p className="text-xs text-muted-foreground">
                 Sản phẩm trong hệ thống
               </p>
@@ -190,12 +213,7 @@ export function ProductsPage() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-orange-600">
-                {products.filter(p => {
-                  const total = p.variants 
-                    ? p.variants.reduce((sum, v) => sum + v.stock, 0)
-                    : p.stock
-                  return total > 0 && total <= 20
-                }).length}
+                {isLoading ? <Loader2 className="h-8 w-8 animate-spin" /> : statistics.lowStock}
               </div>
               <p className="text-xs text-muted-foreground">
                 Sản phẩm cần nhập thêm
@@ -208,12 +226,7 @@ export function ProductsPage() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-red-600">
-                {products.filter(p => {
-                  const total = p.variants 
-                    ? p.variants.reduce((sum, v) => sum + v.stock, 0)
-                    : p.stock
-                  return total === 0
-                }).length}
+                {isLoading ? <Loader2 className="h-8 w-8 animate-spin" /> : statistics.outOfStock}
               </div>
               <p className="text-xs text-muted-foreground">
                 Sản phẩm không có hàng

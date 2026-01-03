@@ -1,6 +1,6 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { productService } from '@/services/product.service'
-import type { ProductQueryParams } from '@/interfaces'
+import type { ProductQueryParams, CreateProductRequest, UpdateProductRequest } from '@/interfaces'
 
 export const PRODUCT_KEYS = {
   all: ['products'] as const,
@@ -34,5 +34,65 @@ export function useProduct(id: string) {
       return response.data
     },
     enabled: !!id,
+  })
+}
+
+export function useCreateProduct() {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: async (data: CreateProductRequest) => {
+      const response = await productService.createProduct(data)
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to create product')
+      }
+      return response.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: PRODUCT_KEYS.lists() })
+    },
+  })
+}
+
+export function useUpdateProduct() {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: UpdateProductRequest }) => {
+      const response = await productService.updateProduct(id, data)
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to update product')
+      }
+      return response.data
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: PRODUCT_KEYS.lists() })
+      queryClient.invalidateQueries({ queryKey: PRODUCT_KEYS.detail(variables.id) })
+    },
+  })
+}
+
+export function useDeleteProduct() {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const response = await productService.deleteProduct(id)
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to delete product')
+      }
+      return response
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: PRODUCT_KEYS.lists() })
+    },
+  })
+}
+
+export function useUploadProductImage() {
+  return useMutation({
+    mutationFn: async (file: File) => {
+      return await productService.uploadImage(file)
+    },
   })
 }
