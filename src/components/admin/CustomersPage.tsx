@@ -20,18 +20,47 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { Search, UserPlus, Eye, Mail } from 'lucide-react'
-import { useState } from 'react'
-import { mockUsers } from '@/data/mock/users'
+import { Search, UserPlus, Eye, Mail, Loader2 } from 'lucide-react'
+import { useState, useMemo, useDeferredValue, useEffect } from 'react'
+import { useUsers } from '@/hooks/useUsers'
+import { useToast } from '@/contexts/ToastContext'
+import type { User } from '@/interfaces'
 
 export function CustomersPage() {
   const [searchQuery, setSearchQuery] = useState('')
-  const customers = mockUsers.filter(user => user.role === 'customer')
-
-  const filteredCustomers = customers.filter(customer =>
-    customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    customer.email.toLowerCase().includes(searchQuery.toLowerCase())
+  const [selectedCustomer, setSelectedCustomer] = useState<User | null>(null)
+  const [viewDetailOpen, setViewDetailOpen] = useState(false)
+  const { showToast } = useToast()
+  const deferredSearchQuery = useDeferredValue(searchQuery)
+  
+  const { data: usersData, isLoading, error } = useUsers()
+  
+  const users = usersData?.data || []
+  const pagination = usersData?.pagination
+  
+  const customers = useMemo(() => 
+    users.filter(user => user.role === 'customer'),
+    [users]
   )
+
+  const filteredCustomers = useMemo(() => 
+    customers.filter(customer =>
+      customer.name.toLowerCase().includes(deferredSearchQuery.toLowerCase()) ||
+      customer.email.toLowerCase().includes(deferredSearchQuery.toLowerCase())
+    ),
+    [customers, deferredSearchQuery]
+  )
+  
+  // Show error toast if query fails
+  useEffect(() => {
+    if (error) {
+      showToast({
+        title: 'Lỗi',
+        description: 'Không thể tải danh sách khách hàng',
+        variant: 'error',
+      })
+    }
+  }, [error, showToast])
 
   return (
     <div className="space-y-6">
@@ -82,13 +111,15 @@ export function CustomersPage() {
           </Dialog>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium">Tổng khách hàng</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{customers.length}</div>
+              <div className="text-2xl font-bold">
+                {isLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : customers.length}
+              </div>
               <p className="text-xs text-muted-foreground">
                 Khách hàng đã đăng ký
               </p>
@@ -100,37 +131,19 @@ export function CustomersPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-600">
-                {customers.filter(c => {
-                  const createdDate = new Date(c.createdAt)
-                  const thirtyDaysAgo = new Date()
-                  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-                  return createdDate >= thirtyDaysAgo
-                }).length}
+                {isLoading ? (
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                ) : (
+                  customers.filter(c => {
+                    const createdDate = new Date(c.createdAt)
+                    const thirtyDaysAgo = new Date()
+                    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+                    return createdDate >= thirtyDaysAgo
+                  }).length
+                )}
               </div>
               <p className="text-xs text-muted-foreground">
                 Trong 30 ngày qua
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Khách hàng VIP</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-purple-600">24</div>
-              <p className="text-xs text-muted-foreground">
-                Mua &gt;10 đơn hàng
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Tỷ lệ quay lại</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-600">68%</div>
-              <p className="text-xs text-muted-foreground">
-                Khách hàng quay lại mua
               </p>
             </CardContent>
           </Card>
@@ -142,7 +155,7 @@ export function CustomersPage() {
               <div>
                 <CardTitle>Danh sách khách hàng</CardTitle>
                 <CardDescription>
-                  Tổng cộng {filteredCustomers.length} khách hàng
+                  {isLoading ? 'Đang tải...' : `Tổng cộng ${pagination?.total || filteredCustomers.length} khách hàng${searchQuery !== deferredSearchQuery ? ' (đang tìm kiếm...)' : ''}`}
                 </CardDescription>
               </div>
               <div className="relative w-64">
@@ -153,19 +166,27 @@ export function CustomersPage() {
                   className="pl-8"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  disabled={isLoading}
                 />
               </div>
             </div>
           </CardHeader>
           <CardContent>
-            <Table>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : filteredCustomers.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                {searchQuery ? 'Không tìm thấy khách hàng nào' : 'Chưa có khách hàng nào'}
+              </div>
+            ) : (
+              <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Khách hàng</TableHead>
                   <TableHead>Liên hệ</TableHead>
-                  <TableHead>Đơn hàng</TableHead>
-                  <TableHead>Tổng chi tiêu</TableHead>
-                  <TableHead>Trạng thái</TableHead>
+                  <TableHead>Vai trò</TableHead>
                   <TableHead>Ngày tham gia</TableHead>
                   <TableHead className="text-right">Thao tác</TableHead>
                 </TableRow>
@@ -182,7 +203,7 @@ export function CustomersPage() {
                         </Avatar>
                         <div>
                           <div className="font-medium">{customer.name}</div>
-                          <div className="text-sm text-muted-foreground">ID: {customer.id}</div>
+                          <div className="text-sm text-muted-foreground">ID: {customer.id.substring(0, 8)}...</div>
                         </div>
                       </div>
                     </TableCell>
@@ -194,16 +215,27 @@ export function CustomersPage() {
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>12 đơn</TableCell>
-                    <TableCell>1,234,560₫</TableCell>
                     <TableCell>
-                      <Badge variant="default">Active</Badge>
+                      <Badge variant={customer.role === 'admin' ? 'destructive' : 'default'}>
+                        {customer.role === 'admin' ? 'Quản trị viên' : 'Khách hàng'}
+                      </Badge>
                     </TableCell>
                     <TableCell>
-                      {new Date(customer.createdAt).toLocaleDateString('vi-VN')}
+                      {new Date(customer.createdAt).toLocaleDateString('vi-VN', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit'
+                      })}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="icon">
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={() => {
+                          setSelectedCustomer(customer)
+                          setViewDetailOpen(true)
+                        }}
+                      >
                         <Eye className="h-4 w-4" />
                       </Button>
                     </TableCell>
@@ -211,41 +243,86 @@ export function CustomersPage() {
                 ))}
               </TableBody>
             </Table>
+            )}
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Top 5 khách hàng VIP</CardTitle>
-            <CardDescription>
-              Khách hàng có tổng chi tiêu cao nhất
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {customers.slice(0, 5).map((customer, index) => (
-                <div key={customer.id} className="flex items-center gap-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold">
-                    {index + 1}
-                  </div>
-                  <Avatar>
-                    <AvatarFallback>
-                      {customer.name.charAt(0).toUpperCase()}
+        {/* Customer Detail Dialog */}
+        <Dialog open={viewDetailOpen} onOpenChange={setViewDetailOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Thông tin chi tiết khách hàng</DialogTitle>
+              <DialogDescription>
+                Xem thông tin đầy đủ của khách hàng
+              </DialogDescription>
+            </DialogHeader>
+            {selectedCustomer && (
+              <div className="space-y-6 py-4">
+                <div className="flex items-center gap-4">
+                  <Avatar className="h-20 w-20">
+                    <AvatarFallback className="text-2xl">
+                      {selectedCustomer.name.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
-                    <div className="font-medium">{customer.name}</div>
-                    <div className="text-sm text-muted-foreground">{customer.email}</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-bold">2,456,789₫</div>
-                    <div className="text-sm text-muted-foreground">15 đơn hàng</div>
+                    <h3 className="text-xl font-semibold">{selectedCustomer.name}</h3>
+                    <p className="text-sm text-muted-foreground break-all">ID: {selectedCustomer.id}</p>
+                    <Badge variant={selectedCustomer.role === 'admin' ? 'destructive' : 'default'} className="mt-2">
+                      {selectedCustomer.role === 'admin' ? 'Quản trị viên' : 'Khách hàng'}
+                    </Badge>
                   </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+
+                <div className="grid gap-6">
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium text-muted-foreground">Email</p>
+                        <p className="text-sm break-all">{selectedCustomer.email}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium text-muted-foreground">Vai trò</p>
+                        <p className="text-sm">{selectedCustomer.role === 'admin' ? 'Quản trị viên' : 'Khách hàng'}</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium text-muted-foreground">Ngày tham gia</p>
+                        <p className="text-sm">
+                          {new Date(selectedCustomer.createdAt).toLocaleString('vi-VN', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium text-muted-foreground">Cập nhật lần cuối</p>
+                        <p className="text-sm">
+                          {new Date(selectedCustomer.updatedAt).toLocaleString('vi-VN', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setViewDetailOpen(false)}>
+                Đóng
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
   )
 }

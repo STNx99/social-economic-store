@@ -1,7 +1,14 @@
 import { apiClient } from './api';
-import { User, ApiResponse } from '@/interfaces';
+import { User, ApiResponse, PaginatedResponse } from '@/interfaces';
 
 class UserService {
+  async getAllUsers(page: number = 1, limit: number = 100): Promise<PaginatedResponse<User>> {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+    return await apiClient.get<PaginatedResponse<User>>(`/users?${params.toString()}`);
+  }
 
   async getUser(id: string): Promise<ApiResponse<User>> {
     return await apiClient.get<ApiResponse<User>>(`/users/${id}`);
@@ -10,14 +17,6 @@ class UserService {
 
   async getCurrentUser(): Promise<ApiResponse<User>> {
     return await apiClient.get<ApiResponse<User>>('/users/me');
-  }
-
-
-  async updateProfile(data: Partial<User>): Promise<ApiResponse<User>> {
-    return await apiClient.put<ApiResponse<User>, Partial<User>>(
-      '/users/me',
-      data
-    );
   }
 }
 
