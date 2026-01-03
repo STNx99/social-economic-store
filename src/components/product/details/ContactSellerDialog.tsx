@@ -51,35 +51,58 @@ export const ContactSellerDialog: React.FC<ContactSellerDialogProps> = ({
   const navigate = useNavigate();
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Sync incoming messages from the hook to our local conversation
   useEffect(() => {
+    if (!user) return;
+
     const newMessages = messages
-      .filter(msg => msg.payload.fromUserId === sellerId)
+      .filter(msg => {
+        const isFromSeller = msg.payload.fromUserId === sellerId;
+        const isToThisSeller = msg.meta?.toUserId === sellerId || 
+                             (msg as any).payload?.toUserId === sellerId;
+        const isFromMe = msg.payload.fromUserId === user.id;
+        
+        return isFromSeller || (isFromMe && isToThisSeller);
+      })
       .map(msg => ({
         id: msg.id,
         senderId: msg.payload.fromUserId,
         content: msg.payload.content,
         timestamp: msg.payload.timestamp,
-        isMe: false
+        isMe: msg.payload.fromUserId === user.id
       }));
 
     if (newMessages.length > 0) {
       setLocalConversation(prev => {
         const existingIds = new Set(prev.map(m => m.id));
         const uniqueNew = newMessages.filter(m => !existingIds.has(m.id));
+        
         if (uniqueNew.length === 0) return prev;
         
-        return [...prev, ...uniqueNew].sort((a, b) => 
+        const filteredPrev = prev.filter(localMsg => {
+          if (!localMsg.id.startsWith('local-')) return true;
+          return !uniqueNew.some(serverMsg => 
+            serverMsg.content === localMsg.content && 
+            Math.abs(new Date(serverMsg.timestamp).getTime() - new Date(localMsg.timestamp).getTime()) < 5000
+          );
+        });
+
+        const updated = [...filteredPrev, ...uniqueNew].sort((a, b) => 
           new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
         );
+        console.log("[ContactSellerDialog] Total messages in conversation:", updated.length);
+        return updated;
       });
     }
-  }, [messages, sellerId]);
+  }, [messages, sellerId, user]);
 
   // Scroll to bottom when conversation updates
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      const scrollContainer = scrollRef.current;
+      const timeoutId = setTimeout(() => {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+      }, 100);
+      return () => clearTimeout(timeoutId);
     }
   }, [localConversation]);
 
@@ -95,12 +118,13 @@ export const ContactSellerDialog: React.FC<ContactSellerDialogProps> = ({
       return;
     }
 
+    console.log(`[ContactSellerDialog] Sending message to ${sellerId}: ${message.substring(0, 20)}...`);
     const success = sendMessage(sellerId, message);
 
     if (success) {
       // Add to local conversation immediately for better UX
       const myMsg: ChatMessage = {
-        id: crypto.randomUUID(),
+        id: `local-${crypto.randomUUID()}`,
         senderId: user.id,
         content: message,
         timestamp: new Date().toISOString(),
@@ -109,6 +133,7 @@ export const ContactSellerDialog: React.FC<ContactSellerDialogProps> = ({
       setLocalConversation(prev => [...prev, myMsg]);
       setMessage("");
     } else {
+      console.error("[ContactSellerDialog] sendMessage returned false");
       showToast({
         title: "Lỗi gửi tin nhắn",
         description: "Không thể kết nối tới máy chủ real-time",
@@ -139,16 +164,17 @@ export const ContactSellerDialog: React.FC<ContactSellerDialogProps> = ({
           Liên hệ người bán
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px] h-[650px] flex flex-col p-0 gap-0 overflow-hidden">
-        <DialogHeader className="p-6 border-b bg-slate-50/50">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-              <Store size={20} />
+      <DialogContent className="sm:max-w-[500px] h-[650px] flex flex-col p-0 gap-0 overflow-hidden border-none shadow-2xl">
+        <DialogHeader className="p-6 border-b bg-secondary/30 backdrop-blur-sm">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground shadow-inner">
+              <Store size={24} />
             </div>
-            <div>
-              <DialogTitle className="text-lg">Chat với {sellerName}</DialogTitle>
-              <DialogDescription className="text-xs line-clamp-1">
-                Sản phẩm: <span className="font-medium text-foreground">{productName}</span>
+            <div className="flex-1">
+              <DialogTitle className="text-xl font-bold tracking-tight">Chat với {sellerName}</DialogTitle>
+              <DialogDescription className="text-xs font-medium text-muted-foreground mt-0.5 flex items-center gap-1">
+                <span className="opacity-70">Sản phẩm:</span> 
+                <span className="text-foreground truncate max-w-[200px]">{productName}</span>
               </DialogDescription>
             </div>
           </div>
@@ -157,16 +183,18 @@ export const ContactSellerDialog: React.FC<ContactSellerDialogProps> = ({
         {/* Message List Container */}
         <div 
           ref={scrollRef}
-          className="flex-1 overflow-y-auto p-6 space-y-4 bg-white scroll-smooth"
+          className="flex-1 overflow-y-auto p-6 space-y-6 bg-background scroll-smooth"
         >
           {localConversation.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center text-muted-foreground text-sm space-y-4 opacity-60">
-              <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center">
-                <MessageSquare size={32} />
+            <div className="h-full flex flex-col items-center justify-center text-muted-foreground text-sm space-y-4">
+              <div className="w-20 h-20 rounded-full bg-secondary flex items-center justify-center animate-pulse">
+                <MessageSquare size={40} className="text-muted-foreground/40" />
               </div>
-              <div className="text-center">
-                <p className="font-medium">Chưa có tin nhắn</p>
-                <p className="text-xs">Bắt đầu cuộc trò chuyện với người bán ngay</p>
+              <div className="text-center space-y-1">
+                <p className="font-bold text-foreground">Chưa có tin nhắn</p>
+                <p className="text-xs max-w-[200px] mx-auto leading-relaxed">
+                  Hãy gửi tin nhắn đầu tiên để bắt đầu cuộc trò chuyện với người bán.
+                </p>
               </div>
             </div>
           ) : (
@@ -180,10 +208,10 @@ export const ContactSellerDialog: React.FC<ContactSellerDialogProps> = ({
               >
                 <div
                   className={cn(
-                    "rounded-2xl px-4 py-2.5 text-sm shadow-sm",
+                    "rounded-2xl px-4 py-2.5 text-sm shadow-sm transition-all hover:shadow-md",
                     msg.isMe 
                       ? "bg-primary text-primary-foreground rounded-tr-none" 
-                      : "bg-slate-100 text-slate-900 rounded-tl-none"
+                      : "bg-secondary text-secondary-foreground border border-border rounded-tl-none"
                   )}
                 >
                   <p className="leading-relaxed whitespace-pre-wrap break-words">
@@ -199,13 +227,13 @@ export const ContactSellerDialog: React.FC<ContactSellerDialogProps> = ({
         </div>
 
         {/* Input Area */}
-        <div className="p-4 border-t bg-slate-50/50">
-          <div className="relative">
+        <div className="p-4 border-t bg-background">
+          <div className="relative group">
             <Textarea
               placeholder="Nhập tin nhắn của bạn (tối thiểu 10 ký tự)..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              className="min-h-[100px] pr-12 resize-none bg-white border-slate-200 focus-visible:ring-primary/20"
+              className="min-h-[100px] pr-14 resize-none bg-muted/30 border-border focus-visible:ring-primary/20 transition-colors group-hover:border-primary/30"
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
@@ -218,22 +246,24 @@ export const ContactSellerDialog: React.FC<ContactSellerDialogProps> = ({
               onClick={handleSendMessage} 
               disabled={!isConnected || message.length < 10}
               className={cn(
-                "absolute bottom-3 right-3 h-8 w-8 rounded-full transition-all",
-                message.length >= 10 ? "scale-100 opacity-100" : "scale-90 opacity-50"
+                "absolute bottom-3 right-3 h-10 w-10 rounded-full transition-all shadow-lg",
+                message.length >= 10 
+                  ? "scale-100 opacity-100 bg-primary hover:bg-primary/90" 
+                  : "scale-90 opacity-50 bg-muted"
               )}
             >
-              <Send size={14} />
+              <Send size={18} className={cn(message.length >= 10 ? "text-primary-foreground" : "text-muted-foreground")} />
             </Button>
           </div>
           
-          <div className="mt-3 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-[10px] font-medium uppercase tracking-wider">
+          <div className="mt-3 flex items-center justify-between px-1">
+            <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest">
               <div className={cn(
-                "w-1.5 h-1.5 rounded-full", 
-                isConnected ? "bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]" : "bg-red-500"
+                "w-2 h-2 rounded-full", 
+                isConnected ? "bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]" : "bg-destructive"
               )} />
-              <span className={isConnected ? "text-green-600" : "text-red-600"}>
-                {isConnected ? "Trực tuyến" : "Ngoại tuyến"}
+              <span className={isConnected ? "text-green-600" : "text-destructive"}>
+                {isConnected ? "Sẵn sàng" : "Mất kết nối"}
               </span>
             </div>
             <span className={cn(

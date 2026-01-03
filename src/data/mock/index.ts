@@ -46,16 +46,12 @@ export function createPaginatedResponse<T>(
   
   return {
     success: true,
-    data: {
-      items,
-      meta: {
-        page,
-        limit,
-        total: actualTotal,
-        totalPages,
-        hasNext: page < totalPages,
-        hasPrev: page > 1,
-      },
+    data: items,
+    pagination: {
+      page,
+      limit,
+      total: actualTotal,
+      totalPages,
     },
     timestamp: new Date().toISOString(),
   }
