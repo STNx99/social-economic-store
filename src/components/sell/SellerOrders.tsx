@@ -80,12 +80,18 @@ export function SellerOrders() {
             ) : (
               orders.map((order) => (
                 <TableRow key={order.id}>
-                  <TableCell className="font-medium">#{order.id.slice(0, 8).toUpperCase()}</TableCell>
+                  <TableCell className="font-medium">#{order.id?.slice(0, 8)?.toUpperCase() || 'N/A'}</TableCell>
                   <TableCell>{new Date(order.createdAt).toLocaleDateString()}</TableCell>
                   <TableCell>
                     <div className="flex flex-col">
-                      <span className="text-sm font-medium">{order.shippingAddress.fullName}</span>
-                      <span className="text-xs text-muted-foreground">ID: {order.userId.slice(0, 6)}</span>
+                      <span className="text-sm font-medium">
+                        {typeof order.shippingAddress === 'string' 
+                          ? order.shippingAddress.split(' | ')[0] 
+                          : (order.shippingAddress as any)?.fullName || 'N/A'}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        ID: {(order.customerId || (order as any).userId)?.slice(0, 6)}
+                      </span>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -102,7 +108,7 @@ export function SellerOrders() {
                     <span className="text-xs capitalize">{order.paymentStatus}</span>
                   </TableCell>
                   <TableCell className="text-right font-medium">
-                    ${order.total.toFixed(2)}
+                    {(order.totalAmount || (order as any).total)?.toLocaleString('vi-VN')}₫
                   </TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="sm">
