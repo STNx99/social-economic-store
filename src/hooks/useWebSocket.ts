@@ -58,37 +58,61 @@ export function useWebSocket() {
       : baseUrl;
 
     try {
-      const protocols = token ? [token] : [];
-      const ws = new WebSocket(wsUrl, protocols);
+      const ws = new WebSocket(wsUrl);
+      socketRef.current = ws;
 
       ws.onopen = () => {
-        setIsConnected(true);
-      };
-
-      ws.onmessage = (event) => {
-        try {
-          const message: ServerMessage = JSON.parse(event.data);
-
-          if (message.type === "direct") {
-            setMessages((prev) => [...prev, message]);
-          }
-        } catch (err) {
-          console.error("Error parsing WebSocket message:", err);
+        if (socketRef.current === ws) {
+          console.log("[WebSocket] Connection established");
+          setIsConnected(true);
         }
       };
 
-      ws.onclose = () => {
-        setIsConnected(false);
-        socketRef.current = null;
-        console.log("WebSocket connection closed");
+      ws.onmessage = (event) => {
+        if (socketRef.current !== ws) return;
+        console.log("[WebSocket] Raw message received:", event.data);
+        try {
+          const data = JSON.parse(event.data);
+          console.log("[WebSocket] Parsed data:", data);
+
+          // Handle both "direct" type and potential variations from server
+          const messageType = data.type || "direct";
+          
+          if (messageType === "direct") {
+            const serverMsg: ServerMessage = {
+              type: "direct",
+              id: data.id || crypto.randomUUID(),
+              payload: data.payload || {
+                fromUserId: data.fromUserId || data.userId || "unknown",
+                content: data.content || "",
+                timestamp: data.timestamp || new Date().toISOString()
+              },
+              meta: data.meta
+            };
+            
+            setMessages((prev) => [...prev, serverMsg]);
+          } else {
+            console.warn("[WebSocket] Received unknown message type:", messageType);
+          }
+        } catch (err) {
+          console.error("[WebSocket] Error parsing message:", err);
+        }
+      };
+
+      ws.onclose = (event) => {
+        if (socketRef.current === ws) {
+          setIsConnected(false);
+          socketRef.current = null;
+        }
+        console.log(`[WebSocket] Connection closed: ${event.code} ${event.reason}`);
       };
 
       ws.onerror = (error) => {
-        console.error("WebSocket error:", error);
-        setIsConnected(false);
+        console.error("[WebSocket] Error:", error);
+        if (socketRef.current === ws) {
+          setIsConnected(false);
+        }
       };
-
-      socketRef.current = ws;
     } catch (err) {
       console.error("Failed to create WebSocket connection:", err);
     }
@@ -117,7 +141,9 @@ export function useWebSocket() {
         !socketRef.current ||
         socketRef.current.readyState !== WebSocket.OPEN
       ) {
-        console.warn("Cannot send message: WebSocket is not connected");
+        console.warn("[WebSocket] Cannot send message: WebSocket is not connected", {
+          readyState: socketRef.current?.readyState,
+        });
         return false;
       }
 
@@ -143,6 +169,7 @@ export function useWebSocket() {
         content,
       };
 
+      console.log("[WebSocket] Sending message:", message);
       socketRef.current.send(JSON.stringify(message));
       return true;
     },
