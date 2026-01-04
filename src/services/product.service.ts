@@ -95,10 +95,10 @@ class ProductService {
   /**
    * Approve a pending product (Admin only)
    */
-  async approveProduct(id: string): Promise<ApiResponse<Product>> {
-    return await apiClient.patch<ApiResponse<Product>, {}>(
+  async approveProduct(id: string, status: 'active' | 'rejected' = 'active'): Promise<ApiResponse<Product>> {
+    return await apiClient.patch<ApiResponse<Product>, { status: string }>(
       `/products/${id}/approve`,
-      {}
+      { status }
     );
   }
 
