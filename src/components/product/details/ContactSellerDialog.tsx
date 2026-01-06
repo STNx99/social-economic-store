@@ -214,7 +214,7 @@ export const ContactSellerDialog: React.FC<ContactSellerDialogProps> = ({
                       : "bg-secondary text-secondary-foreground border border-border rounded-tl-none"
                   )}
                 >
-                  <p className="leading-relaxed whitespace-pre-wrap break-words">
+                  <p className="leading-relaxed whitespace-pre-wrap wrap-break-word">
                     {msg.content}
                   </p>
                 </div>
