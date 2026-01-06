@@ -1,14 +1,17 @@
 import { useState } from 'react'
-import { MessageCircle, X, Send } from 'lucide-react'
+import { MessageCircle, X, Send, Loader2 } from 'lucide-react'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Avatar, AvatarFallback } from '../ui/avatar'
+import { aiService, AISuggestionProduct } from '@/services'
+import { Link } from '@tanstack/react-router'
 
 interface Message {
   id: string
   text: string
   sender: 'user' | 'admin'
   timestamp: Date
+  products?: AISuggestionProduct[]
 }
 
 export function ChatBubble() {
@@ -16,36 +19,62 @@ export function ChatBubble() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: 'Xin chào! Tôi có thể giúp gì cho bạn?',
+      text: 'Hello! How can I help you? Feel free to ask me about the product you are looking for.',
       sender: 'admin',
       timestamp: new Date(),
     },
   ])
   const [inputMessage, setInputMessage] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
-  const handleSendMessage = () => {
-    if (inputMessage.trim() === '') return
+  const handleSendMessage = async () => {
+    if (inputMessage.trim() === '' || isLoading) return
 
-    const newMessage: Message = {
+    const userMessage: Message = {
       id: Date.now().toString(),
       text: inputMessage,
       sender: 'user',
       timestamp: new Date(),
     }
 
-    setMessages([...messages, newMessage])
+    setMessages((prev) => [...prev, userMessage])
+    const query = inputMessage
     setInputMessage('')
+    setIsLoading(true)
 
-    // Simulate admin response
-    setTimeout(() => {
-      const adminResponse: Message = {
+    try {
+      const response = await aiService.suggestProducts(query)
+      
+      if (response.success && response.data) {
+        const aiResponse: Message = {
+          id: (Date.now() + 1).toString(),
+          text: response.data.suggestions,
+          sender: 'admin',
+          timestamp: new Date(),
+          products: response.data.products,
+        }
+        setMessages((prev) => [...prev, aiResponse])
+      } else {
+        const errorResponse: Message = {
+          id: (Date.now() + 1).toString(),
+          text: 'Sorry, I am unable to process your request at this time. Please try again later.',
+          sender: 'admin',
+          timestamp: new Date(),
+        }
+        setMessages((prev) => [...prev, errorResponse])
+      }
+    } catch (error) {
+      console.error('AI Service Error:', error)
+      const errorResponse: Message = {
         id: (Date.now() + 1).toString(),
-        text: 'Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất.',
+        text: 'Sorry, an error occurred. Please try again later.',
         sender: 'admin',
         timestamp: new Date(),
       }
-      setMessages((prev) => [...prev, adminResponse])
-    }, 1000)
+      setMessages((prev) => [...prev, errorResponse])
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -86,7 +115,7 @@ export function ChatBubble() {
             {messages.map((message) => (
               <div
                 key={message.id}
-                className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={`flex flex-col ${message.sender === 'user' ? 'items-end' : 'items-start'}`}
               >
                 <div
                   className={`max-w-[70%] rounded-lg p-3 ${
@@ -95,7 +124,7 @@ export function ChatBubble() {
                       : 'bg-white text-gray-800 border border-gray-200'
                   }`}
                 >
-                  <p className="text-sm">{message.text}</p>
+                  <p className="text-sm whitespace-pre-wrap">{message.text}</p>
                   <p
                     className={`text-xs mt-1 ${
                       message.sender === 'user' ? 'text-blue-100' : 'text-gray-500'
@@ -107,8 +136,53 @@ export function ChatBubble() {
                     })}
                   </p>
                 </div>
+                
+                {/* Product Suggestions */}
+                {message.products && message.products.length > 0 && (
+                  <div className="mt-2 max-w-[70%] space-y-2">
+                    <p className="text-xs text-gray-600 font-semibold mb-2">
+                      Sản phẩm gợi ý:
+                    </p>
+                    {message.products.slice(0, 3).map((product) => (
+                      <Link
+                        key={product.id}
+                        to="/products/$productId"
+                        params={{ productId: product.id }}
+                        className="block bg-white border border-gray-200 rounded-lg p-2 hover:border-blue-500 transition-colors"
+                      >
+                        <div className="flex gap-2">
+                          {product.images && product.images.length > 0 && (
+                            <img
+                              src={product.images[0]}
+                              alt={product.name}
+                              className="w-12 h-12 object-cover rounded"
+                            />
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 truncate">
+                              {product.name}
+                            </p>
+                            <p className="text-xs text-blue-600 font-semibold">
+                              {product.price.toLocaleString('vi-VN')} đ
+                            </p>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
+            
+            {/* Loading indicator */}
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className="bg-white border border-gray-200 rounded-lg p-3 flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                  <p className="text-sm text-gray-600">Searching for products...</p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Input */}
@@ -125,8 +199,13 @@ export function ChatBubble() {
                 onClick={handleSendMessage}
                 size="icon"
                 className="bg-blue-600 hover:bg-blue-700"
+                disabled={isLoading || inputMessage.trim() === ''}
               >
-                <Send size={18} />
+                {isLoading ? (
+                  <Loader2 size={18} className="animate-spin" />
+                ) : (
+                  <Send size={18} />
+                )}
               </Button>
             </div>
           </div>
@@ -137,7 +216,7 @@ export function ChatBubble() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="fixed bottom-6 right-6 h-14 w-14 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center z-50 hover:scale-110 group"
-        aria-label="Chat với chúng tôi"
+        aria-label="Chat with us"
       >
         {isOpen ? (
           <X size={24} className="transition-transform duration-300" />
